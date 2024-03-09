@@ -3,10 +3,10 @@ package web.mates.arriendatufinca.controller;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.NonNull;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.repository.PropertyRepository;
+import web.mates.arriendatufinca.dto.PropertyDTO;
+import web.mates.arriendatufinca.service.PropertyService;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,41 +24,34 @@ import org.springframework.web.bind.annotation.PostMapping;
 public class PropertyController {
 
   @Autowired
-  PropertyRepository propertyRepository;
+  PropertyService propertyService;
 
   @GetMapping(value = { "", "/" })
-  public Iterable<Property> getProperties() {
-    return propertyRepository.findAll();
+  public List<PropertyDTO> getProperties() {
+    return propertyService.getAllProperties();
   }
 
   @GetMapping("/{id}")
-  public Optional<Property> getPropertyById(@NonNull @PathVariable UUID id) {
-    return propertyRepository.findById(id);
+  public PropertyDTO getPropertyById(@NonNull @PathVariable UUID id) {
+    return propertyService.getPropertyById(id);
   }
 
   @PostMapping(value = { "", "/" })
-  public Property newProperty(@NonNull @RequestBody Property property) {
-    return propertyRepository.save(property);
+  public PropertyDTO newProperty(@NonNull @RequestBody PropertyDTO property) {
+    return propertyService.newProperty(property);
   }
 
   @PutMapping("/{id}")
-  public Property updateProperty(@NonNull @PathVariable UUID id, @NonNull @RequestBody Property newProperty) {
-    return propertyRepository.findById(id).map(property -> {
-      return propertyRepository.save(newProperty);
-    }).orElseGet(() -> {
-      return null;
-    });
+  public PropertyDTO updateProperty(@NonNull @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
+    return propertyService.updateProperty(id, newProperty);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteProperty(@NonNull @PathVariable UUID id) {
-    Optional<Property> property = propertyRepository.findById(id);
-    if (property.isPresent()) {
-      propertyRepository.deleteById(id);
+    if (propertyService.deleteProperty(id)) {
       return ResponseEntity.ok().build();
-    } else {
-      return ResponseEntity.notFound().build();
     }
+    return ResponseEntity.notFound().build();
   }
 
 }
