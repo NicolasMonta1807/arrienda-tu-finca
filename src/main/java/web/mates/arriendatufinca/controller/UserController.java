@@ -4,10 +4,11 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.NonNull;
-import web.mates.arriendatufinca.model.User;
-import web.mates.arriendatufinca.repository.UserRepository;
+import web.mates.arriendatufinca.dto.RequestUserDTO;
+import web.mates.arriendatufinca.dto.UserDTO;
+import web.mates.arriendatufinca.service.UserService;
 
-import java.util.Optional;
+import java.util.List;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,38 +25,31 @@ import org.springframework.web.bind.annotation.PutMapping;
 public class UserController {
 
   @Autowired
-  private UserRepository userRepository;
+  private UserService userService;
 
   @GetMapping(value = { "", "/" })
-  public Iterable<User> getUsers() {
-    return userRepository.findAll();
+  public List<UserDTO> getUsers() {
+    return userService.getAllUsers();
   }
 
   @GetMapping("/{id}")
-  public Optional<User> getUserById(@NonNull @PathVariable UUID id) {
-    return userRepository.findById(id);
+  public UserDTO getUserById(@NonNull @PathVariable UUID id) {
+    return userService.getUserById(id);
   }
 
   @PostMapping(value = { "", "/" })
-  public User newUser(@NonNull @RequestBody User user) {
-    userRepository.save(user);
-    return user;
+  public UserDTO newUser(@NonNull @RequestBody RequestUserDTO user) {
+    return userService.newUser(user);
   }
 
   @PutMapping("/{id}")
-  public User updateUser(@NonNull @PathVariable UUID id, @NonNull @RequestBody User newUser) {
-    return userRepository.findById(id).map(user -> {
-      return userRepository.save(newUser);
-    }).orElseGet(() -> {
-      return null;
-    });
+  public UserDTO updateUser(@NonNull @PathVariable UUID id, @NonNull @RequestBody UserDTO newUser) {
+    return userService.updateUser(id, newUser);
   }
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteUser(@NonNull @PathVariable UUID id) {
-    Optional<User> user = userRepository.findById(id);
-    if (user.isPresent()) {
-      userRepository.deleteById(id);
+    if (userService.deleteUser(id)) {
       return ResponseEntity.ok().build();
     } else {
       return ResponseEntity.notFound().build();
