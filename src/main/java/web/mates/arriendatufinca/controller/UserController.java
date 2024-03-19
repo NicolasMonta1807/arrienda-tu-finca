@@ -11,7 +11,6 @@ import web.mates.arriendatufinca.service.UserService;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -24,8 +23,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 @RequestMapping("/user")
 public class UserController {
 
-  @Autowired
-  private UserService userService;
+  private final UserService userService;
+
+  UserController(UserService userService) {
+    this.userService = userService;
+  }
 
   @GetMapping(value = { "", "/" })
   public List<UserDTO> getUsers() {
@@ -49,7 +51,7 @@ public class UserController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteUser(@NonNull @PathVariable UUID id) {
-    if (userService.deleteUser(id)) {
+    if (Boolean.TRUE.equals(userService.deleteUser(id))) {
       return ResponseEntity.ok().build();
     } else {
       return ResponseEntity.notFound().build();

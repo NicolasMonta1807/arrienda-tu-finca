@@ -2,12 +2,11 @@ package web.mates.arriendatufinca.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
 import lombok.NonNull;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.model.Property;
@@ -17,17 +16,13 @@ import web.mates.arriendatufinca.repository.PropertyRepository;
 @Service
 public class PropertyService {
 
-  @Autowired
-  PropertyRepository propertyRepository;
+  private final PropertyRepository propertyRepository;
+  private final UserService userService;
+  private final ModelMapper modelMapper;
 
-  @Autowired
-  UserService userService;
-
-  @Autowired
-  ModelMapper modelMapper;
-
-  PropertyService(PropertyRepository propertyRepository, ModelMapper modelMapper) {
+  PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper) {
     this.propertyRepository = propertyRepository;
+    this.userService = userService;
     this.modelMapper = modelMapper;
   }
 
@@ -42,8 +37,10 @@ public class PropertyService {
   }
 
   public PropertyDTO getPropertyById(@NonNull UUID id) {
-    Property property = propertyRepository.findById(id).get();
-    return modelMapper.map(property, PropertyDTO.class);
+    Optional<Property> property = propertyRepository.findById(id);
+    if (property.isPresent())
+      return modelMapper.map(property, PropertyDTO.class);
+    return null;
   }
 
   public PropertyDTO newProperty(@NonNull PropertyDTO property) {

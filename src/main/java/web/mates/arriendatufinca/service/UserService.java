@@ -2,10 +2,10 @@ package web.mates.arriendatufinca.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
@@ -17,11 +17,8 @@ import web.mates.arriendatufinca.repository.UserRepository;
 @Service
 public class UserService {
 
-  @Autowired
-  UserRepository userRepository;
-
-  @Autowired
-  ModelMapper modelMapper;
+  private final UserRepository userRepository;
+  private final ModelMapper modelMapper;
 
   UserService(UserRepository userRepository, ModelMapper modelMapper) {
     this.userRepository = userRepository;
@@ -39,8 +36,10 @@ public class UserService {
   }
 
   public UserDTO getUserById(@NonNull UUID id) {
-    User user = userRepository.findById(id).get();
-    return modelMapper.map(user, UserDTO.class);
+    Optional<User> user = userRepository.findById(id);
+    if (user.isPresent())
+      return modelMapper.map(user.get(), UserDTO.class);
+    return null;
   }
 
   public UserDTO newUser(@NonNull RequestUserDTO user) {

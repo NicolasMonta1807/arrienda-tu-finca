@@ -52,6 +52,4 @@ public class Property {
   @ManyToOne
   @JoinColumn(name = "owner", nullable = false)
   private User owner;
-
-  // TODO : Municipality
 }

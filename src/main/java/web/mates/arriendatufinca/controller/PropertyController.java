@@ -9,7 +9,6 @@ import web.mates.arriendatufinca.service.PropertyService;
 import java.util.List;
 import java.util.UUID;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -23,8 +22,11 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/property")
 public class PropertyController {
 
-  @Autowired
-  PropertyService propertyService;
+  private final PropertyService propertyService;
+
+  PropertyController(PropertyService propertyService) {
+    this.propertyService = propertyService;
+  }
 
   @GetMapping(value = { "", "/" })
   public List<PropertyDTO> getProperties() {
@@ -48,7 +50,7 @@ public class PropertyController {
 
   @DeleteMapping("/{id}")
   public ResponseEntity<String> deleteProperty(@NonNull @PathVariable UUID id) {
-    if (propertyService.deleteProperty(id)) {
+    if (Boolean.TRUE.equals(propertyService.deleteProperty(id))) {
       return ResponseEntity.ok().build();
     }
     return ResponseEntity.notFound().build();
