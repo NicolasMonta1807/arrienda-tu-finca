@@ -16,6 +16,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.Where;
 
 @Entity
 @AllArgsConstructor
@@ -24,32 +25,32 @@ import lombok.Setter;
 @Setter
 @Table(name = "property")
 @SQLDelete(sql = "UPDATE property SET deleted = true WHERE id=?")
-@Filter(name = "active", condition = "deleted=false")
+@Where(clause = "deleted = false")
 public class Property {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.UUID)
-  private UUID id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.UUID)
+    private UUID id;
 
-  private String name;
+    private String name;
 
-  private String description;
+    private String description;
 
-  private int rooms;
+    private int rooms;
 
-  private int bathrooms;
+    private int bathrooms;
 
-  private boolean petFriendly;
+    private boolean petFriendly;
 
-  private boolean pool;
+    private boolean pool;
 
-  private boolean bbq;
+    private boolean bbq;
 
-  private int pricePerNight;
+    private int pricePerNight;
 
-  private boolean deleted = Boolean.FALSE;
+    private boolean deleted = Boolean.FALSE;
 
-  @ManyToOne
-  @JoinColumn(name = "owner", nullable = false)
-  private User owner;
+    @ManyToOne
+    @JoinColumn(name = "owner", nullable = false)
+    private User owner;
 }
