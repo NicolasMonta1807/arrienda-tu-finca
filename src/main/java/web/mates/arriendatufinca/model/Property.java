@@ -2,16 +2,10 @@ package web.mates.arriendatufinca.model;
 
 import java.util.UUID;
 
+import jakarta.persistence.*;
 import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -53,4 +47,8 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
     private User owner;
+
+    @ManyToOne
+    @JoinColumn(name = "municipality")
+    private Municipality municipality;
 }
