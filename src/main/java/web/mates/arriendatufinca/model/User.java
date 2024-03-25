@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.UUID;
 
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Filter;
 
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
@@ -16,7 +15,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @AllArgsConstructor
@@ -25,7 +24,7 @@ import org.hibernate.annotations.Where;
 @Setter
 @Table(name = "user")
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE id=?")
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class User {
 
     @Id

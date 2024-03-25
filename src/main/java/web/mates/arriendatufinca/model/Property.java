@@ -3,14 +3,13 @@ package web.mates.arriendatufinca.model;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 @Entity
 @AllArgsConstructor
@@ -19,7 +18,7 @@ import org.hibernate.annotations.Where;
 @Setter
 @Table(name = "property")
 @SQLDelete(sql = "UPDATE property SET deleted = true WHERE id=?")
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class Property {
 
     @Id

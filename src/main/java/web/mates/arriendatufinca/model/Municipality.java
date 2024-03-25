@@ -6,7 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLDelete;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.util.Set;
 import java.util.UUID;
@@ -18,7 +18,7 @@ import java.util.UUID;
 @Setter
 @Table(name = "municipality")
 @SQLDelete(sql = "UPDATE municipality SET deleted = true WHERE id=?")
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class Municipality {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
