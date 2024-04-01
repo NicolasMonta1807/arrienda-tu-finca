@@ -1,5 +1,6 @@
 package web.mates.arriendatufinca.controller;
 
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -36,12 +37,12 @@ public class MunicipalityController {
     }
 
     @PostMapping(value = {"", "/"})
-    public MunicipalityDTO createMunicipality(@NonNull @RequestBody MunicipalityDTO municipalityDTO) {
+    public MunicipalityDTO createMunicipality(@NonNull @Valid @RequestBody MunicipalityDTO municipalityDTO) {
         return municipalityService.create(municipalityDTO);
     }
 
     @PutMapping("/{id}")
-    public MunicipalityDTO updateMunicipality(@NonNull @PathVariable UUID id, @NonNull @RequestBody MunicipalityDTO municipalityDTO) {
+    public MunicipalityDTO updateMunicipality(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody MunicipalityDTO municipalityDTO) {
         return municipalityService.update(id, municipalityDTO);
     }
 

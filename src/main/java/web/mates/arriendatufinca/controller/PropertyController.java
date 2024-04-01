@@ -1,5 +1,6 @@
 package web.mates.arriendatufinca.controller;
 
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.NonNull;
@@ -22,38 +23,38 @@ import org.springframework.web.bind.annotation.PostMapping;
 @RequestMapping("/property")
 public class PropertyController {
 
-  private final PropertyService propertyService;
+    private final PropertyService propertyService;
 
-  PropertyController(PropertyService propertyService) {
-    this.propertyService = propertyService;
-  }
-
-  @GetMapping(value = { "", "/" })
-  public List<PropertyDTO> getProperties() {
-    return propertyService.getAllProperties();
-  }
-
-  @GetMapping("/{id}")
-  public PropertyDTO getPropertyById(@NonNull @PathVariable UUID id) {
-    return propertyService.getPropertyById(id);
-  }
-
-  @PostMapping(value = { "", "/" })
-  public PropertyDTO newProperty(@NonNull @RequestBody PropertyDTO property) {
-    return propertyService.newProperty(property);
-  }
-
-  @PutMapping("/{id}")
-  public PropertyDTO updateProperty(@NonNull @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
-    return propertyService.updateProperty(id, newProperty);
-  }
-
-  @DeleteMapping("/{id}")
-  public ResponseEntity<String> deleteProperty(@NonNull @PathVariable UUID id) {
-    if (Boolean.TRUE.equals(propertyService.deleteProperty(id))) {
-      return ResponseEntity.ok().build();
+    PropertyController(PropertyService propertyService) {
+        this.propertyService = propertyService;
     }
-    return ResponseEntity.notFound().build();
-  }
+
+    @GetMapping(value = {"", "/"})
+    public List<PropertyDTO> getProperties() {
+        return propertyService.getAllProperties();
+    }
+
+    @GetMapping("/{id}")
+    public PropertyDTO getPropertyById(@NonNull @PathVariable UUID id) {
+        return propertyService.getPropertyById(id);
+    }
+
+    @PostMapping(value = {"", "/"})
+    public PropertyDTO newProperty(@NonNull @Valid @RequestBody PropertyDTO property) {
+        return propertyService.newProperty(property);
+    }
+
+    @PutMapping("/{id}")
+    public PropertyDTO updateProperty(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
+        return propertyService.updateProperty(id, newProperty);
+    }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteProperty(@NonNull @PathVariable UUID id) {
+        if (Boolean.TRUE.equals(propertyService.deleteProperty(id))) {
+            return ResponseEntity.ok().build();
+        }
+        return ResponseEntity.notFound().build();
+    }
 
 }
