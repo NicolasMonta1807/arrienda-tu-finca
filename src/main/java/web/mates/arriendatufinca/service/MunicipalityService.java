@@ -7,10 +7,8 @@ import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.exceptions.DuplicateMunicipalityException;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
 
-import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.*;
 
 @Service

@@ -3,6 +3,9 @@ package web.mates.arriendatufinca.model;
 import java.util.UUID;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import org.hibernate.annotations.SQLDelete;
 
 import lombok.AllArgsConstructor;
@@ -25,12 +28,18 @@ public class Property {
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
+    @NotBlank(message = "Name is required")
     private String name;
 
+    @NotBlank(message = "Description is required")
     private String description;
 
+    @Min(1)
+    @NotNull(message = "Number of rooms is required")
     private int rooms;
 
+    @Min(1)
+    @NotNull(message = "Number of bathrooms is required")
     private int bathrooms;
 
     private boolean petFriendly;
@@ -39,9 +48,9 @@ public class Property {
 
     private boolean bbq;
 
+    @Min(1)
+    @NotNull(message = "Price per night is required")
     private int pricePerNight;
-
-    private boolean deleted = Boolean.FALSE;
 
     @ManyToOne
     @JoinColumn(name = "owner", nullable = false)
@@ -50,4 +59,6 @@ public class Property {
     @ManyToOne
     @JoinColumn(name = "municipality")
     private Municipality municipality;
+
+    private boolean deleted = Boolean.FALSE;
 }
