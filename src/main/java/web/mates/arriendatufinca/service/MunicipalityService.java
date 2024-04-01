@@ -4,13 +4,14 @@ import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
+import web.mates.arriendatufinca.exceptions.DuplicateMunicipalityException;
 import web.mates.arriendatufinca.model.Municipality;
+import web.mates.arriendatufinca.model.Property;
+import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.sql.SQLIntegrityConstraintViolationException;
+import java.util.*;
 
 @Service
 public class MunicipalityService {
@@ -35,11 +36,19 @@ public class MunicipalityService {
     }
 
     public MunicipalityDTO create(@NonNull MunicipalityDTO municipality) {
+        if (municipalityRepository.existsByNameAndDepartment(municipality.getName(), municipality.getDepartment())) {
+            throw new DuplicateMunicipalityException("Municipality already exists");
+        }
+
         Municipality newMunicipality = municipalityRepository.save(modelMapper.map(municipality, Municipality.class));
         return getById(newMunicipality.getId());
     }
 
     public MunicipalityDTO update(@NonNull UUID id, @NonNull MunicipalityDTO municipalityDTO) {
+        if (municipalityRepository.existsByNameAndDepartment(municipalityDTO.getName(), municipalityDTO.getDepartment())) {
+            throw new DuplicateMunicipalityException("Municipality already exists");
+        }
+
         Optional<Municipality> municipality = municipalityRepository.findById(id);
         if (municipality.isPresent()) {
             municipality.get().setName(municipalityDTO.getName());
@@ -52,5 +61,15 @@ public class MunicipalityService {
 
     public void delete(@NonNull UUID id) {
         municipalityRepository.deleteById(id);
+    }
+
+    public void removeProperty(@NonNull UUID municipalityId, @NonNull Property property) {
+        Optional<Municipality> municipality = municipalityRepository.findById(municipalityId);
+        if (municipality.isPresent()) {
+            Set<Property> properties = municipality.get().getProperties();
+            properties.remove(property);
+            municipality.get().setProperties(properties);
+            municipalityRepository.save(municipality.get());
+        }
     }
 }

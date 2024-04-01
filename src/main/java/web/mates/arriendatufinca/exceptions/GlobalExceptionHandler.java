@@ -19,7 +19,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Object> handleDuplicateEmailException(DuplicateEmailException ex) {
         return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-            put("error", "Email already exists");
+            put("error", ex.getMessage());
+        }});
+    }
+
+    @ExceptionHandler(DuplicateMunicipalityException.class)
+    public ResponseEntity<Object> handleDuplicateMunicipalityException(DuplicateMunicipalityException ex) {
+        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
+            put("error", ex.getMessage());
         }});
     }
 

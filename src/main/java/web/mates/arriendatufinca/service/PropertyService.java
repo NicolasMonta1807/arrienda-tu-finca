@@ -88,6 +88,7 @@ public class PropertyService {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isPresent()) {
             userService.removeProperty(property.get().getOwner().getId(), property.get());
+            municipalityService.removeProperty(property.get().getMunicipality().getId(), property.get());
             propertyRepository.deleteById(id);
             return true;
         }
