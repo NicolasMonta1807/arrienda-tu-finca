@@ -39,4 +39,11 @@ public class GlobalExceptionHandler {
             put("errors", errors);
         }};
     }
+
+    @ExceptionHandler(InvalidDateException.class)
+    public ResponseEntity<Object> handleInvalidDateException(InvalidDateException ex) {
+        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
+            put("error", ex.getMessage());
+        }});
+    }
 }

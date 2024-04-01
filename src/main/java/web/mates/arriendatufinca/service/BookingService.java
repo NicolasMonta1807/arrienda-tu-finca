@@ -3,16 +3,16 @@ package web.mates.arriendatufinca.service;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import web.mates.arriendatufinca.dto.BookingDTO;
+import web.mates.arriendatufinca.exceptions.InvalidDateException;
 import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.BookingRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.time.LocalDate;
+import java.util.*;
 
 @Service
 public class BookingService {
@@ -52,7 +52,20 @@ public class BookingService {
     public BookingDTO create(@NonNull BookingDTO bookingDTO) {
         Booking newBooking = modelMapper.map(bookingDTO, Booking.class);
 
-        // TODO : Verify property guests capacity
+        if (bookingDTO.getStartDate().before(new Date()))
+            throw new InvalidDateException("The start date cannot be earlier than the current date");
+
+
+        Date startDate = bookingDTO.getStartDate();
+        Date endDate = bookingDTO.getEndDate();
+        Calendar calendar = Calendar.getInstance();
+        calendar.setTime(startDate);
+        calendar.add(Calendar.DAY_OF_MONTH, 1);
+        Date dateToCompare = calendar.getTime();
+
+        if (bookingDTO.getEndDate().before(dateToCompare))
+            throw new InvalidDateException("The end date should be at least one day after start date");
+
 
         newBooking.setLessee(
                 modelMapper.map(
