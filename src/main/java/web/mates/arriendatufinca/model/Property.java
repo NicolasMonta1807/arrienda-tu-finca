@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -19,7 +20,7 @@ import org.hibernate.annotations.Where;
 @Setter
 @Table(name = "property")
 @SQLDelete(sql = "UPDATE property SET deleted = true WHERE id=?")
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class Property {
 
     @Id

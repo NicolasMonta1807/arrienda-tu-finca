@@ -14,6 +14,7 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.annotations.Where;
 
 @Entity
@@ -23,7 +24,7 @@ import org.hibernate.annotations.Where;
 @Setter
 @Table(name = "user")
 @SQLDelete(sql = "UPDATE user SET deleted = true WHERE id=?")
-@Where(clause = "deleted = false")
+@SQLRestriction("deleted = false")
 public class User {
 
     @Id
