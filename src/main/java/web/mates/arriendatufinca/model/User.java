@@ -53,5 +53,8 @@ public class User {
     @OneToMany(mappedBy = "owner")
     private Set<Property> properties;
 
+    @OneToMany(mappedBy = "lessee")
+    private Set<Booking> bookings;
+
     private boolean deleted = Boolean.FALSE;
 }
