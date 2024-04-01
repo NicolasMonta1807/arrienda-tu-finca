@@ -14,8 +14,6 @@ import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.PropertyRepository;
 
-import javax.swing.text.html.Option;
-
 @Service
 public class PropertyService {
 
