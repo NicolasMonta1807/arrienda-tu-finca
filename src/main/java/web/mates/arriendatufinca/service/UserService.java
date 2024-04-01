@@ -2,13 +2,14 @@ package web.mates.arriendatufinca.service;
 
 import java.util.*;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
-import org.springframework.boot.context.event.SpringApplicationEvent;
 import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import web.mates.arriendatufinca.dto.RequestUserDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
+import web.mates.arriendatufinca.exceptions.DuplicateEmailException;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.UserRepository;
@@ -38,10 +39,16 @@ public class UserService {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent())
             return modelMapper.map(user.get(), UserDTO.class);
-        return null;
+        else
+            throw new EntityNotFoundException("User not found");
     }
 
     public UserDTO newUser(@NonNull RequestUserDTO user) {
+
+        if (userRepository.existsByEmail(user.getEmail())) {
+            throw new DuplicateEmailException("Email already exists");
+        }
+
         User newUser = modelMapper.map(user, User.class);
 
         if (newUser == null) {
@@ -53,11 +60,16 @@ public class UserService {
     }
 
     public UserDTO updateUser(@NonNull UUID id, @NonNull UserDTO newUser) {
-        User user = userRepository.findById(id).get();
-        user.setName(newUser.getName());
-        user.setEmail(newUser.getEmail());
-        userRepository.save(user);
-        return newUser;
+        Optional<User> requestedUser = userRepository.findById(id);
+        if (requestedUser.isPresent()) {
+            User user = requestedUser.get();
+            user.setName(newUser.getName());
+            user.setEmail(newUser.getEmail());
+            user.setPhoneNumber(newUser.getPhoneNumber());
+            userRepository.save(user);
+            return newUser;
+        } else
+            throw new EntityNotFoundException("User not found");
     }
 
     public void removeProperty(@NonNull UUID userId, @NonNull Property property) {
@@ -70,7 +82,7 @@ public class UserService {
         }
     }
 
-    public Boolean deleteUser(@NonNull UUID id) {
+    public void deleteUser(@NonNull UUID id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent()) {
             Set<Property> properties = user.get().getProperties();
@@ -78,8 +90,6 @@ public class UserService {
             user.get().setProperties(properties);
             userRepository.save(user.get());
             userRepository.deleteById(id);
-            return true;
         }
-        return false;
     }
 }
