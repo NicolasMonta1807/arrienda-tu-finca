@@ -3,7 +3,6 @@ package web.mates.arriendatufinca.model;
 import java.util.UUID;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.Filter;
 import org.hibernate.annotations.SQLDelete;
 
 import lombok.AllArgsConstructor;
@@ -11,7 +10,6 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
-import org.hibernate.annotations.Where;
 
 @Entity
 @AllArgsConstructor
