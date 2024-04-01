@@ -1,5 +1,7 @@
 package web.mates.arriendatufinca.controller;
 
+import jakarta.validation.Valid;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -40,12 +42,12 @@ public class UserController {
     }
 
     @PostMapping(value = {"", "/"})
-    public UserDTO newUser(@NonNull @RequestBody RequestUserDTO user) {
-        return userService.newUser(user);
+    public ResponseEntity<UserDTO> newUser(@NonNull @RequestBody @Valid RequestUserDTO user) {
+        return new ResponseEntity<>(userService.newUser(user), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@NonNull @PathVariable UUID id, @NonNull @RequestBody UserDTO newUser) {
+    public UserDTO updateUser(@NonNull @PathVariable @Valid UUID id, @NonNull @RequestBody UserDTO newUser) {
         return userService.updateUser(id, newUser);
     }
 

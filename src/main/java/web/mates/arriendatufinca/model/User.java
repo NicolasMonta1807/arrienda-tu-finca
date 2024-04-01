@@ -6,6 +6,7 @@ import java.util.UUID;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.annotations.SQLDelete;
 
@@ -37,7 +38,7 @@ public class User {
     @Size(min = 1, max = 100, message = "Last name is too long")
     private String lastName;
 
-    @Email
+    @Pattern(regexp = "^[\\w-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$", message = "Email is not valid")
     @NotBlank(message = "Email is required")
     @Column(unique = true)
     private String email;
