@@ -1,15 +1,10 @@
 package web.mates.arriendatufinca.dto;
 
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
 import jakarta.validation.constraints.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-import web.mates.arriendatufinca.model.Booking;
-import web.mates.arriendatufinca.model.User;
 
 import java.util.UUID;
 

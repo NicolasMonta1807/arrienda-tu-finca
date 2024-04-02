@@ -3,7 +3,6 @@ package web.mates.arriendatufinca.service;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import org.springframework.web.bind.MethodArgumentNotValidException;
 import web.mates.arriendatufinca.dto.BookingDTO;
 import web.mates.arriendatufinca.exceptions.InvalidDateException;
 import web.mates.arriendatufinca.model.Booking;
@@ -11,7 +10,6 @@ import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.BookingRepository;
 
-import java.time.LocalDate;
 import java.util.*;
 
 @Service
@@ -57,7 +55,6 @@ public class BookingService {
 
 
         Date startDate = bookingDTO.getStartDate();
-        Date endDate = bookingDTO.getEndDate();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(Calendar.DAY_OF_MONTH, 1);
