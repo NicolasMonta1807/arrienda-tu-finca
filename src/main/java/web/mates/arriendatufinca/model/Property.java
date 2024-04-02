@@ -1,5 +1,6 @@
 package web.mates.arriendatufinca.model;
 
+import java.util.Set;
 import java.util.UUID;
 
 import jakarta.persistence.*;
@@ -57,8 +58,11 @@ public class Property {
     private User owner;
 
     @ManyToOne
-    @JoinColumn(name = "municipality")
+    @JoinColumn(name = "municipality", nullable = false)
     private Municipality municipality;
+
+    @OneToMany(mappedBy = "property")
+    private Set<Booking> bookings;
 
     private boolean deleted = Boolean.FALSE;
 }
