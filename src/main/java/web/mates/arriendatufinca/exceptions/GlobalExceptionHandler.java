@@ -46,4 +46,11 @@ public class GlobalExceptionHandler {
             put("error", ex.getMessage());
         }});
     }
+
+    @ExceptionHandler(InvalidBookingStateException.class)
+    public ResponseEntity<Object> handleInvalidBookingStateException(InvalidBookingStateException ex) {
+        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
+            put("error", ex.getMessage());
+        }});
+    }
 }
