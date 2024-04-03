@@ -42,7 +42,7 @@ class ArriendatufincaApplicationTests {
     @BeforeEach
     public void setup() {
         this.users.add(User.builder()
-
+                .id(UUID.randomUUID())
                 .name("John")
                 .lastName("Doe")
                 .email("mail@domain.com")
@@ -51,6 +51,7 @@ class ArriendatufincaApplicationTests {
                 .build());
 
         this.users.add(User.builder()
+                .id(UUID.randomUUID())
                 .name("Jane")
                 .lastName("Doe")
                 .email("correo@mail.com")
@@ -60,7 +61,7 @@ class ArriendatufincaApplicationTests {
     }
 
     @Test
-    void UserService_RegisterUser_ReturnsUserDTO()  {
+    void UserController_RegisterUser_ReturnsUserDTO() {
         User userToCompare = this.users.get(0);
 
         RequestUserDTO userDTO = RequestUserDTO.builder()
@@ -71,27 +72,18 @@ class ArriendatufincaApplicationTests {
                 .password(userToCompare.getPassword())
                 .build();
 
-        UUID generatedID = UUID.randomUUID();
+        UserDTO expectedResult = UserDTO.builder()
+                .id(userToCompare.getId())
+                .name(userToCompare.getName())
+                .lastName(userToCompare.getLastName())
+                .email(userToCompare.getEmail())
+                .phoneNumber(userToCompare.getPhoneNumber())
+                .build();
 
-        given(userService.newUser(Mockito.any(RequestUserDTO.class)))
-                .willReturn(UserDTO.builder()
-                        .id(generatedID)
-                        .name(userToCompare.getName())
-                        .lastName(userToCompare.getLastName())
-                        .email(userToCompare.getEmail())
-                        .phoneNumber(userToCompare.getPhoneNumber())
-                        .build());
+        given(userService.newUser(Mockito.any(RequestUserDTO.class))).willReturn(expectedResult);
 
         ResponseEntity<UserDTO> response = userController.newUser(userDTO);
         UserDTO savedUser = response.getBody();
-
-        UserDTO expectedResult = UserDTO.builder()
-                .id(generatedID)
-                .name(this.users.get(0).getName())
-                .lastName(this.users.get(0).getLastName())
-                .email(this.users.get(0).getEmail())
-                .phoneNumber(this.users.get(0).getPhoneNumber())
-                .build();
 
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
 
@@ -100,5 +92,27 @@ class ArriendatufincaApplicationTests {
         Assertions.assertThat(savedUser)
                 .usingRecursiveComparison()
                 .isEqualTo(expectedResult);
+    }
+
+    @Test
+    void UserController_GetAllUsers_ReturnsListUserDTO() {
+        List<UserDTO> usersToCompare = new ArrayList<>();
+        for (User u : users) {
+            usersToCompare.add(UserDTO.builder()
+                    .id(u.getId())
+                    .name(u.getName())
+                    .lastName(u.getLastName())
+                    .email(u.getEmail())
+                    .phoneNumber(u.getPhoneNumber())
+                    .build());
+        }
+
+        given(userService.getAllUsers()).willReturn(usersToCompare);
+
+        List<UserDTO> usersResponse = userController.getUsers();
+        Assertions.assertThat(usersResponse).isNotNull();
+        for (UserDTO userDTO : usersToCompare) {
+            Assertions.assertThat(usersResponse).contains(userDTO);
+        }
     }
 }
