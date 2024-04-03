@@ -16,16 +16,16 @@ import java.util.Map;
 public class GlobalExceptionHandler {
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Object> handleDuplicateEmailException(DuplicateEmailException ex) {
-        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-            put("error", ex.getMessage());
-        }});
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(DuplicateMunicipalityException.class)
     public ResponseEntity<Object> handleDuplicateMunicipalityException(DuplicateMunicipalityException ex) {
-        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-            put("error", ex.getMessage());
-        }});
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -35,22 +35,22 @@ public class GlobalExceptionHandler {
     }
 
     private Map<String, List<String>> getErrorsMap(List<String> errors) {
-        return new HashMap<>() {{
-            put("errors", errors);
-        }};
+        HashMap<String, List<String>> errorsMap = new HashMap<>();
+        errorsMap.put("errors", errors);
+        return errorsMap;
     }
 
     @ExceptionHandler(InvalidDateException.class)
     public ResponseEntity<Object> handleInvalidDateException(InvalidDateException ex) {
-        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-            put("error", ex.getMessage());
-        }});
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(InvalidBookingStateException.class)
     public ResponseEntity<Object> handleInvalidBookingStateException(InvalidBookingStateException ex) {
-        return ResponseEntity.badRequest().body(new HashMap<String, String>() {{
-            put("error", ex.getMessage());
-        }});
+        HashMap<String, String> error = new HashMap<>();
+        error.put("error", ex.getMessage());
+        return ResponseEntity.badRequest().body(error);
     }
 }
