@@ -49,7 +49,7 @@ class ArriendatufincaApplicationTests {
     private final List<User> user = new ArrayList<>();
 
     @BeforeEach
-    private void setup() {
+    public void setup() {
         this.user.add(User.builder()
                 .id(UUID.randomUUID())
                 .name("John")

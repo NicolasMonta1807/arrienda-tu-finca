@@ -16,10 +16,10 @@
 	<description>Demo project for Spring Boot</description>
 	<properties>
 		<java.version>17</java.version>
-		<sonar.projectKey>grupo_1_1</sonar.projectKey>
-		<sonar.projectName>grupo_1_1</sonar.projectName>
+		<sonar.projectKey>grupo-1-1</sonar.projectKey>
+		<sonar.projectName>grupo-1-1</sonar.projectName>
 		<sonar.host.url>http://sonarqube.dynaco.co</sonar.host.url>
-		<sonar.token>sqp_1d0bd90d56cec9c10ed3ea2e74560265721255a8</sonar.token>
+		<sonar.token>sqp_ef36da2ce48628cda2529633b4fff2296be73248</sonar.token>
 	</properties>
 	<dependencies>
 		<dependency>
