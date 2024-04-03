@@ -23,32 +23,32 @@ public class BookingController {
     }
 
     @GetMapping(value = {"", "/"})
-    public List<BookingDTO> getAllBookings() {
-        return bookingService.getAll();
+    public ResponseEntity<List<BookingDTO>> getAllBookings() {
+        return new ResponseEntity<>(bookingService.getAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public BookingDTO getBookingById(@NonNull @PathVariable UUID id) {
+    public ResponseEntity<BookingDTO> getBookingById(@NonNull @PathVariable UUID id) {
         BookingDTO booking = bookingService.getById(id);
         if (booking == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "booking not found");
         }
-        return booking;
+        return new ResponseEntity<>(booking, HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})
-    public BookingDTO createBooking(@NonNull @Valid @RequestBody BookingDTO booking) {
-        return bookingService.create(booking);
+    public ResponseEntity<BookingDTO> createBooking(@NonNull @Valid @RequestBody BookingDTO booking) {
+        return new ResponseEntity<>(bookingService.create(booking), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public BookingDTO updateBooking(@NonNull @PathVariable UUID id, @NonNull @Valid @RequestBody BookingDTO booking) {
-        return bookingService.update(id, booking);
+    public ResponseEntity<BookingDTO> updateBooking(@NonNull @PathVariable UUID id, @NonNull @Valid @RequestBody BookingDTO booking) {
+        return new ResponseEntity<>(bookingService.update(id, booking), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteBooking(@NonNull @PathVariable UUID id) {
+    public ResponseEntity<Void> deleteBooking(@NonNull @PathVariable UUID id) {
         bookingService.delete(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }

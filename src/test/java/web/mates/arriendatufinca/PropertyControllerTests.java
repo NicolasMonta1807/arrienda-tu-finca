@@ -87,7 +87,6 @@ class PropertyControllerTests {
         for (PropertyDTO propertyDTO : propertiesToCompare) {
             Assertions.assertThat(propertiesResponse).contains(propertyDTO);
         }
-
     }
 
     @Test

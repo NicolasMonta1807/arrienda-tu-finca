@@ -1,17 +1,17 @@
 package web.mates.arriendatufinca;
 
+import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 public class TestVariables {
     public static final List<User> users = getUsers();
     public static final List<Municipality> municipalities = getMunicipalities();
     public static final List<Property> properties = getProperties();
+    public static final List<Booking> bookings = getBookings();
 
     private static List<User> getUsers() {
         List<User> users = new ArrayList<>();
@@ -86,5 +86,20 @@ public class TestVariables {
                 .build());
 
         return properties;
+    }
+
+    private static List<Booking> getBookings() {
+        List<Booking> bookings = new ArrayList<>();
+
+        bookings.add(Booking.builder()
+                .id(UUID.randomUUID())
+                .startDate(new GregorianCalendar(2024, Calendar.APRIL, 21).getTime())
+                .endDate(new GregorianCalendar(2024, Calendar.APRIL, 23).getTime())
+                .guests(4)
+                .lessee(users.get(0))
+                .property(properties.get(0))
+                .build());
+
+        return bookings;
     }
 }
