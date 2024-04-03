@@ -14,17 +14,20 @@ import java.util.Map;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
+
+    static final String ERROR_KEY = "error";
+
     @ExceptionHandler(DuplicateEmailException.class)
     public ResponseEntity<Object> handleDuplicateEmailException(DuplicateEmailException ex) {
         HashMap<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(DuplicateMunicipalityException.class)
     public ResponseEntity<Object> handleDuplicateMunicipalityException(DuplicateMunicipalityException ex) {
         HashMap<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.badRequest().body(error);
     }
 
@@ -36,21 +39,21 @@ public class GlobalExceptionHandler {
 
     private Map<String, List<String>> getErrorsMap(List<String> errors) {
         HashMap<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put("errors", errors);
+        errorsMap.put(ERROR_KEY, errors);
         return errorsMap;
     }
 
     @ExceptionHandler(InvalidDateException.class)
     public ResponseEntity<Object> handleInvalidDateException(InvalidDateException ex) {
         HashMap<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.badRequest().body(error);
     }
 
     @ExceptionHandler(InvalidBookingStateException.class)
     public ResponseEntity<Object> handleInvalidBookingStateException(InvalidBookingStateException ex) {
         HashMap<String, String> error = new HashMap<>();
-        error.put("error", ex.getMessage());
+        error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.badRequest().body(error);
     }
 }

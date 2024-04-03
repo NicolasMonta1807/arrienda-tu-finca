@@ -173,9 +173,10 @@ class ArriendatufincaApplicationTests {
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         UserDTO userResponse = response.getBody();
-        Assertions.assertThat(userResponse).isNotNull();
-        Assertions.assertThat(userResponse).isEqualTo(updatedUser);
-        Assertions.assertThat(userResponse).isNotEqualTo(previousUser);
+        Assertions.assertThat(userResponse)
+                .isNotNull()
+                .isEqualTo(updatedUser)
+                .isNotEqualTo(previousUser);
     }
 
     @Test
