@@ -70,7 +70,7 @@ class ArriendatufincaApplicationTests {
     }
 
     @Test
-    public void UserService_RegisterUser_ReturnsUserDTO() throws Exception {
+    void UserService_RegisterUser_ReturnsUserDTO() throws Exception {
         RequestUserDTO userDTO = modelMapper.map(user, RequestUserDTO.class);
 
         given(userRepository.save(Mockito.any(User.class))).willReturn(user.get(0));
