@@ -32,13 +32,13 @@ public class UserController {
     }
 
     @GetMapping(value = {"", "/"})
-    public List<UserDTO> getUsers() {
-        return userService.getAllUsers();
+    public ResponseEntity<List<UserDTO>> getUsers() {
+        return new ResponseEntity<>(userService.getAllUsers(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public UserDTO getUserById(@NonNull @PathVariable UUID id) {
-        return userService.getUserById(id);
+    public ResponseEntity<UserDTO> getUserById(@NonNull @PathVariable UUID id) {
+        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})
@@ -47,13 +47,13 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@NonNull @PathVariable @Valid UUID id, @NonNull @RequestBody UserDTO newUser) {
-        return userService.updateUser(id, newUser);
+    public ResponseEntity<UserDTO> updateUser(@NonNull @PathVariable @Valid UUID id, @NonNull @RequestBody UserDTO newUser) {
+        return new ResponseEntity<>(userService.updateUser(id, newUser), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@NonNull @PathVariable UUID id) {
+    public ResponseEntity<Void> deleteUser(@NonNull @PathVariable UUID id) {
         userService.deleteUser(id);
-        return ResponseEntity.ok().build();
+        return ResponseEntity.noContent().build();
     }
 }
