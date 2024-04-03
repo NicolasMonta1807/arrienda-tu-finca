@@ -1,7 +1,6 @@
 package web.mates.arriendatufinca;
 
 import org.assertj.core.api.Assertions;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
 import org.mockito.*;
@@ -19,7 +18,6 @@ import web.mates.arriendatufinca.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.given;
@@ -32,35 +30,14 @@ import static org.mockito.Mockito.verify;
 @AutoConfigureMockMvc
 @RunWith(MockitoJUnitRunner.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
-class ArriendatufincaApplicationTests {
+class UserControllerTests {
     @Mock
     private UserService userService;
 
     @InjectMocks
     private UserController userController;
 
-    private final List<User> users = new ArrayList<>();
-
-    @BeforeEach
-    public void setup() {
-        this.users.add(User.builder()
-                .id(UUID.randomUUID())
-                .name("John")
-                .lastName("Doe")
-                .email("mail@domain.com")
-                .phoneNumber("3003898475")
-                .password("pass1234")
-                .build());
-
-        this.users.add(User.builder()
-                .id(UUID.randomUUID())
-                .name("Jane")
-                .lastName("Doe")
-                .email("correo@mail.com")
-                .phoneNumber("3123235206")
-                .password("contra1234")
-                .build());
-    }
+    private final List<User> users = TestVariables.users;
 
     @Test
     void UserController_RegisterUser_ReturnsUserDTO() {
@@ -180,7 +157,7 @@ class ArriendatufincaApplicationTests {
     }
 
     @Test
-    void UserController_DeleteUser_ReturnsOkAndUserIsDeleted() {
+    void UserController_DeleteUser_ReturnsOk() {
         UUID randomId = UUID.randomUUID();
 
         ResponseEntity<Void> response = userController.deleteUser(randomId);

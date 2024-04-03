@@ -7,12 +7,9 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
 
 @Entity
@@ -20,6 +17,7 @@ import org.hibernate.annotations.SQLRestriction;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "property")
 @SQLDelete(sql = "UPDATE property SET deleted = true WHERE id=?")
 @SQLRestriction("deleted = false")

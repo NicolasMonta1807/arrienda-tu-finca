@@ -1,6 +1,8 @@
 package web.mates.arriendatufinca.controller;
 
 import jakarta.validation.Valid;
+import org.apache.coyote.Response;
+import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.NonNull;
@@ -30,31 +32,29 @@ public class PropertyController {
     }
 
     @GetMapping(value = {"", "/"})
-    public List<PropertyDTO> getProperties() {
-        return propertyService.getAllProperties();
+    public ResponseEntity<List<PropertyDTO>> getProperties() {
+        return new ResponseEntity<>(propertyService.getAllProperties(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public PropertyDTO getPropertyById(@NonNull @PathVariable UUID id) {
-        return propertyService.getPropertyById(id);
+    public ResponseEntity<PropertyDTO> getPropertyById(@NonNull @PathVariable UUID id) {
+        return new ResponseEntity<>(propertyService.getPropertyById(id), HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})
-    public PropertyDTO newProperty(@NonNull @Valid @RequestBody PropertyDTO property) {
-        return propertyService.newProperty(property);
+    public ResponseEntity<PropertyDTO> newProperty(@NonNull @Valid @RequestBody PropertyDTO property) {
+        return new ResponseEntity<>(propertyService.newProperty(property), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public PropertyDTO updateProperty(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
-        return propertyService.updateProperty(id, newProperty);
+    public ResponseEntity<PropertyDTO> updateProperty(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
+        return new ResponseEntity<>(propertyService.updateProperty(id, newProperty), HttpStatus.OK);
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteProperty(@NonNull @PathVariable UUID id) {
-        if (Boolean.TRUE.equals(propertyService.deleteProperty(id))) {
-            return ResponseEntity.ok().build();
-        }
-        return ResponseEntity.notFound().build();
+    public ResponseEntity<Void> deleteProperty(@NonNull @PathVariable UUID id) {
+        propertyService.deleteProperty(id);
+        return ResponseEntity.noContent().build();
     }
 
 }
