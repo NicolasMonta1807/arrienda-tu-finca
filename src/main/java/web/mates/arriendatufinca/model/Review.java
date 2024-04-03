@@ -13,6 +13,7 @@ import java.util.UUID;
 @NoArgsConstructor
 @Getter
 @Setter
+@Builder
 @Table(name = "review")
 @SQLDelete(sql = "UPDATE review SET deleted = true WHERE id=?")
 @SQLRestriction("deleted = false")

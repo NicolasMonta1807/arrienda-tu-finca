@@ -1,9 +1,6 @@
 package web.mates.arriendatufinca;
 
-import web.mates.arriendatufinca.model.Booking;
-import web.mates.arriendatufinca.model.Municipality;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
+import web.mates.arriendatufinca.model.*;
 
 import java.util.*;
 
@@ -12,6 +9,7 @@ public class TestVariables {
     public static final List<Municipality> municipalities = getMunicipalities();
     public static final List<Property> properties = getProperties();
     public static final List<Booking> bookings = getBookings();
+    public static final List<Review> reviews = getReviews();
 
     private static List<User> getUsers() {
         List<User> users = new ArrayList<>();
@@ -101,5 +99,19 @@ public class TestVariables {
                 .build());
 
         return bookings;
+    }
+
+    private static List<Review> getReviews() {
+        List<Review> reviews = new ArrayList<>();
+
+        reviews.add(Review.builder()
+                .id(UUID.randomUUID())
+                .rating(3.5)
+                .comment("Muy buena pasadía. Todo muy limpio y agradable")
+                .booking(bookings.get(0))
+                .author(users.get(1))
+                .build());
+
+        return reviews;
     }
 }
