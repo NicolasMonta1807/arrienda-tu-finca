@@ -4,30 +4,24 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.Spy;
-import org.mockito.exceptions.verification.junit.ArgumentsAreDifferent;
+import org.mockito.*;
 import org.mockito.junit.MockitoJUnitRunner;
-import org.modelmapper.ModelMapper;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.ui.ModelMap;
+import web.mates.arriendatufinca.controller.UserController;
 import web.mates.arriendatufinca.dto.RequestUserDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.model.User;
-import web.mates.arriendatufinca.repository.UserRepository;
 import web.mates.arriendatufinca.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.when;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
@@ -38,20 +32,17 @@ import static org.mockito.Mockito.when;
 @TestPropertySource(locations = "classpath:application-test.properties")
 class ArriendatufincaApplicationTests {
     @Mock
-    private UserRepository userRepository;
-
-    @Spy
-    private ModelMapper modelMapper;
-
-    @InjectMocks
     private UserService userService;
 
-    private final List<User> user = new ArrayList<>();
+    @InjectMocks
+    private UserController userController;
+
+    private final List<User> users = new ArrayList<>();
 
     @BeforeEach
-    private void setup() {
-        this.user.add(User.builder()
-                .id(UUID.randomUUID())
+    public void setup() {
+        this.users.add(User.builder()
+
                 .name("John")
                 .lastName("Doe")
                 .email("mail@domain.com")
@@ -59,8 +50,7 @@ class ArriendatufincaApplicationTests {
                 .password("pass1234")
                 .build());
 
-        this.user.add(User.builder()
-                .id(UUID.randomUUID())
+        this.users.add(User.builder()
                 .name("Jane")
                 .lastName("Doe")
                 .email("correo@mail.com")
@@ -70,13 +60,45 @@ class ArriendatufincaApplicationTests {
     }
 
     @Test
-    public void UserService_RegisterUser_ReturnsUserDTO() throws Exception {
-        RequestUserDTO userDTO = modelMapper.map(user, RequestUserDTO.class);
+    void UserService_RegisterUser_ReturnsUserDTO()  {
+        User userToCompare = this.users.get(0);
 
-        given(userRepository.save(Mockito.any(User.class))).willReturn(user.get(0));
-        given(userRepository.findById(Mockito.any(UUID.class))).willReturn(Optional.ofNullable(user.get(0)));
+        RequestUserDTO userDTO = RequestUserDTO.builder()
+                .name(userToCompare.getName())
+                .lastName(userToCompare.getLastName())
+                .email(userToCompare.getEmail())
+                .phoneNumber(userToCompare.getPhoneNumber())
+                .password(userToCompare.getPassword())
+                .build();
 
-        UserDTO savedUser = userService.newUser(userDTO);
+        UUID generatedID = UUID.randomUUID();
+
+        given(userService.newUser(Mockito.any(RequestUserDTO.class)))
+                .willReturn(UserDTO.builder()
+                        .id(generatedID)
+                        .name(userToCompare.getName())
+                        .lastName(userToCompare.getLastName())
+                        .email(userToCompare.getEmail())
+                        .phoneNumber(userToCompare.getPhoneNumber())
+                        .build());
+
+        ResponseEntity<UserDTO> response = userController.newUser(userDTO);
+        UserDTO savedUser = response.getBody();
+
+        UserDTO expectedResult = UserDTO.builder()
+                .id(generatedID)
+                .name(this.users.get(0).getName())
+                .lastName(this.users.get(0).getLastName())
+                .email(this.users.get(0).getEmail())
+                .phoneNumber(this.users.get(0).getPhoneNumber())
+                .build();
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+
+
         Assertions.assertThat(savedUser).isNotNull();
+        Assertions.assertThat(savedUser)
+                .usingRecursiveComparison()
+                .isEqualTo(expectedResult);
     }
 }
