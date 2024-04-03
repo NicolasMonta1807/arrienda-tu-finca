@@ -55,8 +55,8 @@ public class UserService {
             return null;
         }
 
-        userRepository.save(newUser);
-        return getUserById(newUser.getId());
+        User savedUser = userRepository.save(newUser);
+        return getUserById(savedUser.getId());
     }
 
     public UserDTO updateUser(@NonNull UUID id, @NonNull UserDTO newUser) {
