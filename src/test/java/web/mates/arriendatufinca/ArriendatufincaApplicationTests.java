@@ -109,10 +109,37 @@ class ArriendatufincaApplicationTests {
 
         given(userService.getAllUsers()).willReturn(usersToCompare);
 
-        List<UserDTO> usersResponse = userController.getUsers();
-        Assertions.assertThat(usersResponse).isNotNull();
+        ResponseEntity<List<UserDTO>> response = userController.getUsers();
+        List<UserDTO> users = response.getBody();
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
         for (UserDTO userDTO : usersToCompare) {
-            Assertions.assertThat(usersResponse).contains(userDTO);
+            Assertions.assertThat(users).contains(userDTO);
         }
+    }
+
+    @Test
+    void UserController_GetSingleUserById_ReturnsUserDTO() {
+        User userToCompare = this.users.get(0);
+
+        UserDTO expectedResult = UserDTO.builder()
+                .name(userToCompare.getName())
+                .lastName(userToCompare.getLastName())
+                .email(userToCompare.getEmail())
+                .phoneNumber(userToCompare.getPhoneNumber())
+                .build();
+
+        given(userService.getUserById(Mockito.any(UUID.class))).willReturn(expectedResult);
+
+        ResponseEntity<UserDTO> response = userController.getUserById(userToCompare.getId());
+        UserDTO user = response.getBody();
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        Assertions.assertThat(user).isNotNull();
+        Assertions.assertThat(user).usingRecursiveComparison().isEqualTo(expectedResult);
     }
 }
