@@ -19,9 +19,11 @@ import web.mates.arriendatufinca.service.UserService;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest(
         webEnvironment = SpringBootTest.WebEnvironment.MOCK,
@@ -174,5 +176,15 @@ class ArriendatufincaApplicationTests {
         Assertions.assertThat(userResponse).isNotNull();
         Assertions.assertThat(userResponse).isEqualTo(updatedUser);
         Assertions.assertThat(userResponse).isNotEqualTo(previousUser);
+    }
+
+    @Test
+    void UserController_DeleteUser_ReturnsOkAndUserIsDeleted() {
+        UUID randomId = UUID.randomUUID();
+
+        ResponseEntity<Void> response = userController.deleteUser(randomId);
+        verify(userService).deleteUser(randomId);
+
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NO_CONTENT);
     }
 }
