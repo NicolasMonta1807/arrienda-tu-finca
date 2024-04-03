@@ -142,4 +142,37 @@ class ArriendatufincaApplicationTests {
         Assertions.assertThat(user).isNotNull();
         Assertions.assertThat(user).usingRecursiveComparison().isEqualTo(expectedResult);
     }
+
+    @Test
+    void UserController_UpdateUser_ReturnsUpdatedUserDTO() {
+        User userToCompare = this.users.get(0);
+
+        String newName = "Jane";
+
+        UserDTO previousUser = UserDTO.builder()
+                .name(userToCompare.getName())
+                .lastName(userToCompare.getLastName())
+                .email(userToCompare.getEmail())
+                .phoneNumber(userToCompare.getPhoneNumber())
+                .build();
+
+        UserDTO updatedUser = UserDTO.builder()
+                .name(newName)
+                .lastName(userToCompare.getLastName())
+                .email(userToCompare.getEmail())
+                .phoneNumber(userToCompare.getPhoneNumber())
+                .build();
+
+        given(userService.updateUser(Mockito.any(UUID.class), Mockito.any(UserDTO.class))).willReturn(updatedUser);
+
+        ResponseEntity<UserDTO> response = userController.updateUser(userToCompare.getId(), updatedUser);
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        UserDTO userResponse = response.getBody();
+        Assertions.assertThat(userResponse).isNotNull();
+        Assertions.assertThat(userResponse).isEqualTo(updatedUser);
+        Assertions.assertThat(userResponse).isNotEqualTo(previousUser);
+    }
 }
