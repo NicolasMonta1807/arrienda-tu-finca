@@ -1,4 +1,4 @@
-package web.mates.arriendatufinca;
+package web.mates.arriendatufinca.helper;
 
 import web.mates.arriendatufinca.model.*;
 
