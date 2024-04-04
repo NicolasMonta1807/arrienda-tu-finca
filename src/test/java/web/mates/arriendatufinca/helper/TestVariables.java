@@ -97,6 +97,7 @@ public class TestVariables {
                 .guests(4)
                 .lessee(users.get(0))
                 .property(properties.get(0))
+                .status(Status.REVIEW)
                 .build());
 
         return bookings;
