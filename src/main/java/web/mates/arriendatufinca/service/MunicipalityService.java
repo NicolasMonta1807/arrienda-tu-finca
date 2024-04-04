@@ -10,6 +10,7 @@ import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
 
 import java.util.*;
+import java.util.stream.StreamSupport;
 
 @Service
 public class MunicipalityService {
@@ -24,7 +25,11 @@ public class MunicipalityService {
     public List<MunicipalityDTO> getAll() {
         Iterable<Municipality> municipalities = municipalityRepository.findAll();
         List<MunicipalityDTO> municipalityDTOS = new ArrayList<>();
-        municipalities.forEach(m -> municipalityDTOS.add(modelMapper.map(m, MunicipalityDTO.class)));
+
+        for (Municipality m : municipalities) {
+            municipalityDTOS.add(modelMapper.map(m, MunicipalityDTO.class));
+        }
+
         return municipalityDTOS;
     }
 
