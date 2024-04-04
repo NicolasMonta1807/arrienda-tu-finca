@@ -17,6 +17,7 @@ import org.springframework.test.context.TestPropertySource;
 import web.mates.arriendatufinca.ArriendatufincaApplication;
 import web.mates.arriendatufinca.controller.MunicipalityController;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
+import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.service.MunicipalityService;
@@ -89,6 +90,25 @@ class MunicipalityControllerTests {
         for (MunicipalityDTO municipalityDTO : municipalitiesToCompare) {
             Assertions.assertThat(municipalitiesResponse).contains(municipalityDTO);
         }
+    }
+
+    @Test
+    void MunicipalityController_GetMunicipality__ReturnsMunicipalityDTO() {
+        Municipality municipalityToCompare = this.municipalities.get(0);
+
+        MunicipalityDTO municipalityDTO = MunicipalityDTO.builder()
+                .name(municipalityToCompare.getName())
+                .id(municipalityToCompare.getId())
+                .department(municipalityToCompare.getDepartment())
+                .build();
+
+        given(municipalityService.getById(Mockito.any(UUID.class))).willReturn(municipalityDTO);
+
+        ResponseEntity<MunicipalityDTO> response = municipalityController.getMunicipalityById(municipalityToCompare.getId());
+        MunicipalityDTO municipalityResponse = response.getBody();
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 
     @Test

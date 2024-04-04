@@ -154,5 +154,7 @@ class PropertyServiceTests {
 
         // Then
         verify(propertyRepository, times(1)).deleteById(propertyToUse.getId());
+        verify(userService, times(1)).removeProperty(propertyToUse.getOwner().getId(), propertyToUse);
+        verify(municipalityService, times(1)).removeProperty(propertyToUse.getMunicipality().getId(), propertyToUse);
     }
 }
