@@ -12,18 +12,15 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.context.junit4.SpringRunner;
 import web.mates.arriendatufinca.ArriendatufincaApplication;
-import web.mates.arriendatufinca.controller.MunicipalityController;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
 import web.mates.arriendatufinca.service.MunicipalityService;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.StreamSupport;
 
 @SpringBootTest(classes = ArriendatufincaApplication.class)
 @RunWith(SpringRunner.class)

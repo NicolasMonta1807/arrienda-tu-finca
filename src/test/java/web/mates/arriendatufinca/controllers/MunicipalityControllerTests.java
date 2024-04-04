@@ -16,7 +16,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
 import web.mates.arriendatufinca.ArriendatufincaApplication;
 import web.mates.arriendatufinca.controller.MunicipalityController;
-import web.mates.arriendatufinca.dto.BookingDTO;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
 import web.mates.arriendatufinca.model.Municipality;

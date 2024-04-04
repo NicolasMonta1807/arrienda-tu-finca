@@ -10,7 +10,6 @@ import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
 
 import java.util.*;
-import java.util.stream.StreamSupport;
 
 @Service
 public class MunicipalityService {

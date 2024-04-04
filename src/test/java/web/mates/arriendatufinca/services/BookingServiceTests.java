@@ -17,7 +17,6 @@ import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
 import web.mates.arriendatufinca.model.Booking;
-import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.repository.BookingRepository;
 import web.mates.arriendatufinca.service.BookingService;
 import web.mates.arriendatufinca.service.PropertyService;
