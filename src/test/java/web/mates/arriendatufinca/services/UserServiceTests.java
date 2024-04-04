@@ -74,8 +74,9 @@ class UserServiceTests {
 
         List<UserDTO> responseUsers = userService.getAllUsers();
 
-        Assertions.assertThat(responseUsers).hasSameSizeAs(users);
-        Assertions.assertThat(responseUsers).isNotNull();
+        Assertions.assertThat(responseUsers)
+                .isNotNull()
+                .hasSameSizeAs(users);
 
         List<String> emails = new ArrayList<>();
 
