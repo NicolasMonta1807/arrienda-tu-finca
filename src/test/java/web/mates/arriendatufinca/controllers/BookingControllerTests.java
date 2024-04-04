@@ -1,4 +1,4 @@
-package web.mates.arriendatufinca;
+package web.mates.arriendatufinca.controllers;
 
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -14,8 +14,10 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.TestPropertySource;
+import web.mates.arriendatufinca.ArriendatufincaApplication;
 import web.mates.arriendatufinca.controller.BookingController;
 import web.mates.arriendatufinca.dto.BookingDTO;
+import web.mates.arriendatufinca.helper.TestVariables;
 import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.service.BookingService;
 
