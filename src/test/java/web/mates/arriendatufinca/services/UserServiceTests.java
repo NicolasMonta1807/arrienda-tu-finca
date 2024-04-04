@@ -74,7 +74,7 @@ class UserServiceTests {
 
         List<UserDTO> responseUsers = userService.getAllUsers();
 
-        Assertions.assertThat(responseUsers.size()).isEqualTo(users.size());
+        Assertions.assertThat(responseUsers).hasSameSizeAs(users);
         Assertions.assertThat(responseUsers).isNotNull();
 
         List<String> emails = new ArrayList<>();
@@ -128,6 +128,6 @@ class UserServiceTests {
         userService.deleteUser(existingUser.getId());
 
         Optional<User> requestUser = userRepository.findById(existingUser.getId());
-        Assertions.assertThat(requestUser.isPresent()).isFalse();
+        Assertions.assertThat(requestUser).isNotPresent();
     }
 }
