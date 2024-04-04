@@ -6,6 +6,8 @@ import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.runner.RunWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -22,6 +24,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Optional;
 
+import static org.mockito.BDDMockito.given;
+
 @SpringBootTest(classes = ArriendatufincaApplication.class)
 @RunWith(SpringRunner.class)
 @TestPropertySource(locations = "classpath:application-test.properties")
@@ -29,16 +33,16 @@ import java.util.Optional;
 class MunicipalityServiceTests {
 
     @Autowired
-    private MunicipalityRepository municipalityRepository;
+    MunicipalityRepository municipalityRepository;
 
     @Autowired
-    private MunicipalityService municipalityService;
+    MunicipalityService municipalityService;
 
     @Autowired
-    private ModelMapper modelMapper;
+    ModelMapper modelMapper;
 
     @Autowired
-    private EntityManager entityManager;
+    EntityManager entityManager;
 
     private final List<Municipality> municipalities = TestVariables.municipalities;
 
@@ -50,7 +54,7 @@ class MunicipalityServiceTests {
     @Transactional
     void completelyDeleteMunicipalities() {
         entityManager.joinTransaction();
-        entityManager.createQuery("DELETE FROM Municipality where deleted = false ").executeUpdate();
+        entityManager.createQuery("DELETE FROM Municipality").executeUpdate();
     }
 
     @Test

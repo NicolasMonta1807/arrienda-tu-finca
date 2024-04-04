@@ -38,7 +38,11 @@ public class UserController {
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDTO> getUserById(@NonNull @PathVariable UUID id) {
-        return new ResponseEntity<>(userService.getUserById(id), HttpStatus.OK);
+        UserDTO userDTO = userService.getUserById(id);
+        if (userDTO == null) {
+            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+        }
+        return new ResponseEntity<>(userDTO, HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})

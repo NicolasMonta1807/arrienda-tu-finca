@@ -125,6 +125,14 @@ class UserControllerTests {
     }
 
     @Test
+    void UserController_GetUserWithNoExisingId_ReturnsNotFound() {
+        ResponseEntity<UserDTO> response = userController.getUserById(UUID.randomUUID());
+
+        Assertions.assertThat(response).isNotNull();
+        Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
     void UserController_UpdateUser_ReturnsUpdatedUserDTO() {
         User userToCompare = this.users.get(0);
 
