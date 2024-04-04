@@ -74,8 +74,8 @@ public class BookingService {
                         propertyService.getPropertyById(bookingDTO.getPropertyId()),
                         Property.class));
 
-        bookingRepository.save(newBooking);
-        return getById(newBooking.getId());
+        Booking savedBooking = bookingRepository.save(newBooking);
+        return getById(savedBooking.getId());
     }
 
     public BookingDTO update(@NonNull UUID id, @NonNull BookingDTO bookingDTO) {

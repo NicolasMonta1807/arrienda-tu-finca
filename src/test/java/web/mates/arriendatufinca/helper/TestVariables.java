@@ -87,7 +87,7 @@ public class TestVariables {
         return properties;
     }
 
-    private static List<Booking> getBookings() {
+    public static List<Booking> getBookings() {
         List<Booking> bookings = new ArrayList<>();
 
         bookings.add(Booking.builder()

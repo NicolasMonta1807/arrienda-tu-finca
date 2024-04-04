@@ -63,8 +63,8 @@ public class PropertyService {
                         municipalityService.getById(property.getMunicipalityID()),
                         Municipality.class));
 
-        propertyRepository.save(newProperty);
-        return getPropertyById(newProperty.getId());
+        Property savedProperty = propertyRepository.save(newProperty);
+        return getPropertyById(savedProperty.getId());
     }
 
     public PropertyDTO updateProperty(@NonNull UUID id, @NonNull PropertyDTO newProperty) {

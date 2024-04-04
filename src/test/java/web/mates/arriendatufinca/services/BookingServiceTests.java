@@ -50,7 +50,7 @@ class BookingServiceTests {
     @InjectMocks
     BookingService bookingService;
 
-    private final List<Booking> bookings = TestVariables.bookings;
+    private final List<Booking> bookings = TestVariables.getBookings();
 
     @Test
     void BookingService_CreateBooking_ReturnsBookingDTO() {
