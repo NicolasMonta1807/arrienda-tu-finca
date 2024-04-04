@@ -16,15 +16,12 @@ import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
-import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.PropertyRepository;
 import web.mates.arriendatufinca.service.MunicipalityService;
 import web.mates.arriendatufinca.service.PropertyService;
 import web.mates.arriendatufinca.service.UserService;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,8 +51,6 @@ class PropertyServiceTests {
     @InjectMocks
     PropertyService propertyService;
 
-    private final List<Municipality> municipalities = TestVariables.municipalities;
-    private final List<User> users = TestVariables.users;
     private final List<Property> properties = TestVariables.properties;
 
     @Test
@@ -150,7 +145,7 @@ class PropertyServiceTests {
     }
 
     @Test
-    void PropertyService_DeletesProperty_ReturnsVoidAndDeletesUser() {
+    void PropertyService_DeletesProperty_ReturnsVoidAndDeletesProperty() {
         // Given
         Property propertyToUse = properties.get(0);
         when(propertyRepository.findById(any(UUID.class))).thenReturn(Optional.of(propertyToUse));
