@@ -93,8 +93,9 @@ class BookingServiceTests {
         List<BookingDTO> response = bookingService.getAll();
 
         // Then
-        Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response).hasSameSizeAs(bookings);
+        Assertions.assertThat(response)
+                .isNotNull()
+                .hasSameSizeAs(bookings);
 
         for (int i = 0; i < response.size(); i++)
             Assertions.assertThat(response.get(i).getId()).isEqualTo(bookings.get(i).getId());

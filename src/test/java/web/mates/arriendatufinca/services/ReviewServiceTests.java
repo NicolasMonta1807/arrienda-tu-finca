@@ -92,8 +92,9 @@ class ReviewServiceTests {
         List<ReviewDTO> response = reviewService.getAll();
 
         // Then
-        Assertions.assertThat(response).isNotNull();
-        Assertions.assertThat(response).hasSameSizeAs(reviews);
+        Assertions.assertThat(response)
+                .isNotNull()
+                .hasSameSizeAs(reviews);
 
         for (int i = 0; i < response.size(); i++)
             Assertions.assertThat(response.get(i).getId()).isEqualTo(reviews.get(i).getId());
