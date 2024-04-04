@@ -40,15 +40,16 @@ public class TestVariables {
         municipalities.add(Municipality.builder()
                 .id(UUID.randomUUID())
                 .name("Bello")
-                .department("Antioquia").build());
+                .department("Antioquia")
+                .properties(new HashSet<>())
+                .build());
         municipalities.add(Municipality.builder()
                 .id(UUID.randomUUID())
                 .name("Ibagué")
-                .department("Tolima").build());
-        municipalities.add(Municipality.builder()
-                .id(UUID.randomUUID())
-                .name("Bogotá")
-                .department("Bogotá").build());
+                .department("Tolima")
+                .properties(new HashSet<>())
+                .build());
+
         return municipalities;
     }
 
