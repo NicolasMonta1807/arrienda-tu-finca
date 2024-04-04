@@ -84,14 +84,12 @@ public class PropertyService {
             return null;
     }
 
-    public Boolean deleteProperty(@NonNull UUID id) {
+    public void deleteProperty(@NonNull UUID id) {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isPresent()) {
             userService.removeProperty(property.get().getOwner().getId(), property.get());
             municipalityService.removeProperty(property.get().getMunicipality().getId(), property.get());
             propertyRepository.deleteById(id);
-            return true;
         }
-        return false;
     }
 }
