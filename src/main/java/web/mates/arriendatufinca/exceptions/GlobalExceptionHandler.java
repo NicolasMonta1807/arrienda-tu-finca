@@ -56,4 +56,11 @@ public class GlobalExceptionHandler {
         error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.badRequest().body(error);
     }
+
+    @ExceptionHandler(InvalidCredentialsException.class)
+    public ResponseEntity<Object> handleInvalidCredentialsException(InvalidCredentialsException ex) {
+        HashMap<String, String> error = new HashMap<>();
+        error.put(ERROR_KEY, ex.getMessage());
+        return ResponseEntity.status(401).body(error);
+    }
 }

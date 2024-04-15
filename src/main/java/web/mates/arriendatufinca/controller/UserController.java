@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import lombok.NonNull;
 import web.mates.arriendatufinca.dto.RequestUserDTO;
+import web.mates.arriendatufinca.dto.SignInDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.service.UserService;
 
@@ -48,6 +49,11 @@ public class UserController {
     @PostMapping(value = {"", "/"})
     public ResponseEntity<UserDTO> newUser(@NonNull @RequestBody @Valid RequestUserDTO user) {
         return new ResponseEntity<>(userService.newUser(user), HttpStatus.CREATED);
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<UserDTO> login(@NonNull @RequestBody SignInDTO user) {
+        return new ResponseEntity<>(userService.login(user), HttpStatus.OK);
     }
 
     @PutMapping("/{id}")

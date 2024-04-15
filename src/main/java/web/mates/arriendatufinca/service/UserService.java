@@ -8,8 +8,10 @@ import org.springframework.stereotype.Service;
 
 import lombok.NonNull;
 import web.mates.arriendatufinca.dto.RequestUserDTO;
+import web.mates.arriendatufinca.dto.SignInDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.exceptions.DuplicateEmailException;
+import web.mates.arriendatufinca.exceptions.InvalidCredentialsException;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 import web.mates.arriendatufinca.repository.UserRepository;
@@ -57,6 +59,19 @@ public class UserService {
 
         User savedUser = userRepository.save(newUser);
         return getUserById(savedUser.getId());
+    }
+
+    public UserDTO login(@NonNull SignInDTO user) {
+        Optional<User> requestedUser = userRepository.findByEmail(user.getEmail());
+        if (requestedUser.isEmpty()) {
+            throw new InvalidCredentialsException("Email does not exist");
+        }
+
+        if (requestedUser.get().getPassword().equals(user.getPassword())) {
+            return modelMapper.map(requestedUser, UserDTO.class);
+        } else {
+            throw new InvalidCredentialsException("Invalid email or password");
+        }
     }
 
     public UserDTO updateUser(@NonNull UUID id, @NonNull UserDTO newUser) {
