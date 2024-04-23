@@ -5,6 +5,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 
 import lombok.NonNull;
+import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.service.PropertyService;
 
@@ -25,7 +26,15 @@ public class PropertyController {
     }
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<PropertyDTO>> getProperties() {
+    public ResponseEntity<List<PropertyDTO>> getProperties(@RequestParam(required = false) UUID owner) {
+        if (owner != null) {
+            List<PropertyDTO> properties = propertyService.getPropertiesFromOwner(owner);
+            if (properties != null)
+                return new ResponseEntity<>(properties, HttpStatus.OK);
+            else
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+        }
+
         return new ResponseEntity<>(propertyService.getAllProperties(), HttpStatus.OK);
     }
 
