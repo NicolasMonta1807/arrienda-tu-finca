@@ -92,4 +92,17 @@ public class PropertyService {
             propertyRepository.deleteById(id);
         }
     }
+
+    public List<PropertyDTO> getPropertiesFromOwner(@NonNull UUID id) {
+        Property property = propertyRepository.findByOwner(
+                modelMapper.map(userService.getUserById(id), User.class)
+        );
+        List<PropertyDTO> propertiesDTO = new ArrayList<>();
+
+        if(property == null)
+            return null;
+
+        propertiesDTO.add(getPropertyById(property.getId()));
+        return propertiesDTO;
+    }
 }
