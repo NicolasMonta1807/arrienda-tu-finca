@@ -16,24 +16,20 @@ import java.util.UUID;
 @Getter
 @Setter
 @Builder
-@Table(name = "municipality")
-@SQLDelete(sql = "UPDATE municipality SET deleted = true WHERE id=?")
+@Table(name = "department")
+@SQLDelete(sql = "UPDATE department SET deleted = true WHERE id=?")
 @SQLRestriction("deleted = false")
-public class Municipality {
+public class Department {
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
     private UUID id;
 
-    @NotEmpty(message = "Municipality name is required")
+    @NotEmpty(message = "Department name is required")
     @Size(min = 1, max = 128, message = "Name is too long")
     private String name;
 
-    @ManyToOne
-    @JoinColumn(name = "department", nullable = false)
-    private Department department;
-
-    @OneToMany(mappedBy = "municipality")
-    private Set<Property> properties;
+    @OneToMany(mappedBy = "department")
+    private Set<Municipality> municipalities;
 
     private Boolean deleted = Boolean.FALSE;
 }

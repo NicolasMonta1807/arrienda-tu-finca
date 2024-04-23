@@ -2,6 +2,7 @@ package web.mates.arriendatufinca.dto;
 
 import jakarta.persistence.Column;
 import jakarta.validation.constraints.NotEmpty;
+import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.*;
 
@@ -15,10 +16,8 @@ import java.util.UUID;
 public class MunicipalityDTO {
     private UUID id;
 
-    @Column(unique = true)
-    @NotEmpty(message = "Department is required")
-    @Size(min = 1, max = 64, message = "Department is too long")
-    private String department;
+    @NotNull(message = "Department is required")
+    private UUID departmentId;
 
     @NotEmpty(message = "Municipality name is required")
     @Size(min = 1, max = 128, message = "Name is too long")
