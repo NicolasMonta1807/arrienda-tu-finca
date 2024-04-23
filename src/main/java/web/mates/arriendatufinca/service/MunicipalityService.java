@@ -4,7 +4,7 @@ import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
-import web.mates.arriendatufinca.exceptions.DuplicateMunicipalityException;
+import web.mates.arriendatufinca.model.Department;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
@@ -14,11 +14,13 @@ import java.util.*;
 @Service
 public class MunicipalityService {
     private final MunicipalityRepository municipalityRepository;
+    private final DepartmentService departmentService;
     private final ModelMapper modelMapper;
 
-    MunicipalityService(MunicipalityRepository municipalityRepository, ModelMapper modelMapper) {
+    MunicipalityService(MunicipalityRepository municipalityRepository, ModelMapper modelMapper, DepartmentService departmentService) {
         this.municipalityRepository = municipalityRepository;
         this.modelMapper = modelMapper;
+        this.departmentService = departmentService;
     }
 
     public List<MunicipalityDTO> getAll() {
@@ -26,7 +28,7 @@ public class MunicipalityService {
         List<MunicipalityDTO> municipalityDTOS = new ArrayList<>();
 
         for (Municipality m : municipalities) {
-            municipalityDTOS.add(modelMapper.map(m, MunicipalityDTO.class));
+            municipalityDTOS.add(getById(m.getId()));
         }
 
         return municipalityDTOS;
@@ -34,27 +36,32 @@ public class MunicipalityService {
 
     public MunicipalityDTO getById(@NonNull UUID id) {
         Optional<Municipality> municipality = municipalityRepository.findById(id);
-        return municipality.map(value -> modelMapper.map(value, MunicipalityDTO.class)).orElse(null);
+        if (municipality.isPresent()) {
+            MunicipalityDTO municipalityDTO = modelMapper.map(municipality, MunicipalityDTO.class);
+            municipalityDTO.setDepartmentId(municipality.get().getDepartment().getId());
+            return municipalityDTO;
+        }
+        return null;
     }
 
     public MunicipalityDTO create(@NonNull MunicipalityDTO municipality) {
-        if (municipalityRepository.existsByNameAndDepartment(municipality.getName(), municipality.getDepartment())) {
-            throw new DuplicateMunicipalityException("Municipality already exists");
-        }
+        Municipality newMunicipality = modelMapper.map(municipality, Municipality.class);
 
-        Municipality newMunicipality = municipalityRepository.save(modelMapper.map(municipality, Municipality.class));
+        newMunicipality.setDepartment(
+                modelMapper.map(departmentService.getById(municipality.getDepartmentId()), Department.class)
+        );
+        municipalityRepository.save(newMunicipality);
+        System.out.println("NEW MUNI: " + newMunicipality.getName() + " - " + newMunicipality.getDepartment());
         return getById(newMunicipality.getId());
     }
 
     public MunicipalityDTO update(@NonNull UUID id, @NonNull MunicipalityDTO municipalityDTO) {
-        if (municipalityRepository.existsByNameAndDepartment(municipalityDTO.getName(), municipalityDTO.getDepartment())) {
-            throw new DuplicateMunicipalityException("Municipality already exists");
-        }
-
         Optional<Municipality> municipality = municipalityRepository.findById(id);
         if (municipality.isPresent()) {
             municipality.get().setName(municipalityDTO.getName());
-            municipality.get().setDepartment(municipalityDTO.getDepartment());
+            municipality.get().setDepartment(
+                    modelMapper.map(departmentService.getById(municipalityDTO.getDepartmentId()), Department.class)
+            );
             municipalityRepository.save(municipality.get());
             return getById(id);
         }

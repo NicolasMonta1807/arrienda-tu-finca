@@ -1,17 +1,17 @@
 package web.mates.arriendatufinca.service;
 
+import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.dto.DepartmentDTO;
+import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.dto.MunicipalitySimpleDTO;
 import web.mates.arriendatufinca.model.Department;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.repository.DepartmentRepository;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {
@@ -29,11 +29,15 @@ public class DepartmentService {
 
         for (Department d : departments) {
             DepartmentDTO dto = modelMapper.map(d, DepartmentDTO.class);
+            Set<MunicipalitySimpleDTO> municipalitySimpleDTOS = new HashSet<>();
             for (Municipality m : d.getMunicipalities()) {
-                dto.getMunicipalities().add(modelMapper.map(m, MunicipalitySimpleDTO.class));
+                MunicipalitySimpleDTO municipalityDTO = modelMapper.map(m, MunicipalitySimpleDTO.class);
+                municipalitySimpleDTOS.add(municipalityDTO);
             }
+            dto.setMunicipalities(municipalitySimpleDTOS);
             departmentDTOS.add(dto);
         }
+
         return departmentDTOS;
     }
 
@@ -41,11 +45,35 @@ public class DepartmentService {
         Optional<Department> department = departmentRepository.findById(id);
         if (department.isPresent()) {
             DepartmentDTO dto = modelMapper.map(department.get(), DepartmentDTO.class);
+            Set<MunicipalitySimpleDTO> municipalitySimpleDTOS = new HashSet<>();
             for (Municipality m : department.get().getMunicipalities()) {
-                dto.getMunicipalities().add(modelMapper.map(m, MunicipalitySimpleDTO.class));
+                MunicipalitySimpleDTO municipalityDTO = modelMapper.map(m, MunicipalitySimpleDTO.class);
+                municipalitySimpleDTOS.add(municipalityDTO);
             }
+            dto.setMunicipalities(municipalitySimpleDTOS);
             return dto;
         }
         return null;
+    }
+
+    public DepartmentDTO create(@NonNull DepartmentDTO department) {
+        Department newDepartment = departmentRepository.save(
+                modelMapper.map(department, Department.class)
+        );
+        newDepartment.setMunicipalities(new HashSet<>());
+        return getById(newDepartment.getId());
+    }
+
+    public DepartmentDTO update(@NonNull UUID id, @NonNull DepartmentDTO departmentDTO) {
+        Optional<Department> department = departmentRepository.findById(id);
+        if (department.isPresent()) {
+            department.get().setName(departmentDTO.getName());
+            return getById(id);
+        }
+        return null;
+    }
+
+    public void delete(@NonNull UUID id) {
+        departmentRepository.deleteById(id);
     }
 }

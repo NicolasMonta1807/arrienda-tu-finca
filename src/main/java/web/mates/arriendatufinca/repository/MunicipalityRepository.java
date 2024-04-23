@@ -6,5 +6,4 @@ import web.mates.arriendatufinca.model.Municipality;
 import java.util.UUID;
 
 public interface MunicipalityRepository extends CrudRepository<Municipality, UUID> {
-    boolean existsByNameAndDepartment(String name, String department);
 }
