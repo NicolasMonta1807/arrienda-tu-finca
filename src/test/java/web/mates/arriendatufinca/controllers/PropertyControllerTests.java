@@ -77,7 +77,7 @@ class PropertyControllerTests {
 
         given(propertyService.getAllProperties()).willReturn(propertiesToCompare);
 
-        ResponseEntity<List<PropertyDTO>> response = propertyController.getProperties();
+        ResponseEntity<List<PropertyDTO>> response = propertyController.getProperties(null);
 
         Assertions.assertThat(response).isNotNull();
         Assertions.assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);

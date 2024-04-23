@@ -99,7 +99,7 @@ class MunicipalityControllerTests {
         MunicipalityDTO municipalityDTO = MunicipalityDTO.builder()
                 .name(municipalityToCompare.getName())
                 .id(municipalityToCompare.getId())
-                .department(municipalityToCompare.getDepartment())
+                .departmentId(municipalityToCompare.getDepartment().getId())
                 .build();
 
         given(municipalityService.getById(Mockito.any(UUID.class))).willReturn(municipalityDTO);

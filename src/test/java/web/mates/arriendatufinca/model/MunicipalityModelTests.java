@@ -28,7 +28,7 @@ class MunicipalityModelTests {
         testMunicipalityDTO = MunicipalityDTO.builder()
                 .id(testMunicipality.getId())
                 .name(testMunicipality.getName())
-                .department(testMunicipality.getDepartment())
+                .departmentId(testMunicipality.getDepartment().getId())
                 .build();
     }
 
