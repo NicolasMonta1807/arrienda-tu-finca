@@ -4,12 +4,13 @@ import lombok.*;
 
 import java.util.UUID;
 
-@AllArgsConstructor
 @NoArgsConstructor
+@AllArgsConstructor
 @Getter
 @Setter
 @Builder
-public class MunicipalitySimpleDTO {
+public class MunicipalityInfoDTO {
     private UUID id;
     private String name;
+    private String departmentName;
 }

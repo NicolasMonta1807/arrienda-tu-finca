@@ -4,6 +4,7 @@ import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
+import web.mates.arriendatufinca.dto.MunicipalityInfoDTO;
 import web.mates.arriendatufinca.model.Department;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
@@ -23,9 +24,9 @@ public class MunicipalityService {
         this.departmentService = departmentService;
     }
 
-    public List<MunicipalityDTO> getAll() {
+    public List<MunicipalityInfoDTO> getAll() {
         Iterable<Municipality> municipalities = municipalityRepository.findAll();
-        List<MunicipalityDTO> municipalityDTOS = new ArrayList<>();
+        List<MunicipalityInfoDTO> municipalityDTOS = new ArrayList<>();
 
         for (Municipality m : municipalities) {
             municipalityDTOS.add(getById(m.getId()));
@@ -34,17 +35,17 @@ public class MunicipalityService {
         return municipalityDTOS;
     }
 
-    public MunicipalityDTO getById(@NonNull UUID id) {
+    public MunicipalityInfoDTO getById(@NonNull UUID id) {
         Optional<Municipality> municipality = municipalityRepository.findById(id);
         if (municipality.isPresent()) {
-            MunicipalityDTO municipalityDTO = modelMapper.map(municipality, MunicipalityDTO.class);
-            municipalityDTO.setDepartmentId(municipality.get().getDepartment().getId());
+            MunicipalityInfoDTO municipalityDTO = modelMapper.map(municipality, MunicipalityInfoDTO.class);
+            municipalityDTO.setDepartmentName(municipality.get().getDepartment().getName());
             return municipalityDTO;
         }
         return null;
     }
 
-    public MunicipalityDTO create(@NonNull MunicipalityDTO municipality) {
+    public MunicipalityInfoDTO create(@NonNull MunicipalityDTO municipality) {
         Municipality newMunicipality = modelMapper.map(municipality, Municipality.class);
 
         newMunicipality.setDepartment(
@@ -55,7 +56,7 @@ public class MunicipalityService {
         return getById(newMunicipality.getId());
     }
 
-    public MunicipalityDTO update(@NonNull UUID id, @NonNull MunicipalityDTO municipalityDTO) {
+    public MunicipalityInfoDTO update(@NonNull UUID id, @NonNull MunicipalityDTO municipalityDTO) {
         Optional<Municipality> municipality = municipalityRepository.findById(id);
         if (municipality.isPresent()) {
             municipality.get().setName(municipalityDTO.getName());

@@ -1,6 +1,5 @@
 package web.mates.arriendatufinca.dto;
 
-import jakarta.persistence.Entity;
 import lombok.*;
 
 import java.util.Set;

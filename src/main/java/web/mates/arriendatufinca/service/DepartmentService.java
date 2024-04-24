@@ -4,14 +4,12 @@ import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.dto.DepartmentDTO;
-import web.mates.arriendatufinca.dto.MunicipalityDTO;
 import web.mates.arriendatufinca.dto.MunicipalitySimpleDTO;
 import web.mates.arriendatufinca.model.Department;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.repository.DepartmentRepository;
 
 import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class DepartmentService {

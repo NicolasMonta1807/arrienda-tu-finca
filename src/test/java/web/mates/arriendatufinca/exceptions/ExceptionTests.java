@@ -113,7 +113,7 @@ class ExceptionTests {
 
     @Test
     void BookingService_CreateBookingWithWrongDates_ThrowsInvalidDateException() {
-        MunicipalityDTO savedMunie = municipalityService.create(modelMapper.map(municipalities.get(0), MunicipalityDTO.class));
+        MunicipalityInfoDTO savedMunie = municipalityService.create(modelMapper.map(municipalities.get(0), MunicipalityDTO.class));
         UserDTO lessee = userService.newUser(modelMapper.map(users.get(0), RequestUserDTO.class));
 
         PropertyDTO propertyToSave = modelMapper.map(properties.get(0), PropertyDTO.class);
@@ -148,7 +148,7 @@ class ExceptionTests {
 
     @Test
     void ReviewService_ReviewBookingWithNoState_ThrowsInvalidBookingStateException() {
-        MunicipalityDTO savedMunie = municipalityService.create(modelMapper.map(municipalities.get(0), MunicipalityDTO.class));
+        MunicipalityInfoDTO savedMunie = municipalityService.create(modelMapper.map(municipalities.get(0), MunicipalityDTO.class));
         UserDTO lessee = userService.newUser(modelMapper.map(users.get(0), RequestUserDTO.class));
 
         PropertyDTO propertyToSave = modelMapper.map(properties.get(0), PropertyDTO.class);

@@ -2,8 +2,6 @@ package web.mates.arriendatufinca.controller;
 
 import jakarta.validation.Valid;
 import lombok.NonNull;
-import lombok.Value;
-import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -19,11 +17,9 @@ import java.util.UUID;
 @RequestMapping("/department")
 public class DepartmentController {
     private final DepartmentService departmentService;
-    private final ServerProperties serverProperties;
 
-    DepartmentController(DepartmentService departmentService, ServerProperties serverProperties) {
+    DepartmentController(DepartmentService departmentService) {
         this.departmentService = departmentService;
-        this.serverProperties = serverProperties;
     }
 
     @GetMapping(value = {"", "/"})

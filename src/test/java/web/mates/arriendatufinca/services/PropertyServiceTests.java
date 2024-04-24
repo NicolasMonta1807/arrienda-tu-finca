@@ -13,6 +13,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.TestPropertySource;
 import web.mates.arriendatufinca.ArriendatufincaApplication;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
+import web.mates.arriendatufinca.dto.MunicipalityInfoDTO;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.UserDTO;
 import web.mates.arriendatufinca.helper.TestVariables;
@@ -62,7 +63,7 @@ class PropertyServiceTests {
 
         UserDTO ownerDTO = modelMapper.map(baseProperty.getOwner(), UserDTO.class);
 
-        MunicipalityDTO municipalityDTO = modelMapper.map(baseProperty.getMunicipality(), MunicipalityDTO.class);
+        MunicipalityInfoDTO municipalityDTO = modelMapper.map(baseProperty.getMunicipality(), MunicipalityInfoDTO.class);
 
         when(userService.getUserById(any(UUID.class))).thenReturn(ownerDTO);
         when(municipalityService.getById(any(UUID.class))).thenReturn(municipalityDTO);

@@ -7,6 +7,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.MunicipalityDTO;
+import web.mates.arriendatufinca.dto.MunicipalityInfoDTO;
 import web.mates.arriendatufinca.service.MunicipalityService;
 
 import java.util.List;
@@ -24,13 +25,13 @@ public class MunicipalityController {
     }
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<MunicipalityDTO>> getAllMunicipalities() {
+    public ResponseEntity<List<MunicipalityInfoDTO>> getAllMunicipalities() {
         return new ResponseEntity<>(municipalityService.getAll(), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MunicipalityDTO> getMunicipalityById(@NonNull @PathVariable UUID id) {
-        MunicipalityDTO municipality = municipalityService.getById(id);
+    public ResponseEntity<MunicipalityInfoDTO> getMunicipalityById(@NonNull @PathVariable UUID id) {
+        MunicipalityInfoDTO municipality = municipalityService.getById(id);
         if (municipality == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "municipality not found");
         }
@@ -38,13 +39,13 @@ public class MunicipalityController {
     }
 
     @PostMapping(value = {"", "/"})
-    public ResponseEntity<MunicipalityDTO> createMunicipality(@NonNull @Valid @RequestBody MunicipalityDTO municipalityDTO) {
+    public ResponseEntity<MunicipalityInfoDTO> createMunicipality(@NonNull @Valid @RequestBody MunicipalityDTO municipalityDTO) {
         return new ResponseEntity<>(municipalityService.create(municipalityDTO), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<MunicipalityDTO> updateMunicipality(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody MunicipalityDTO municipalityDTO) {
-        MunicipalityDTO updatedMunicipality = municipalityService.update(id, municipalityDTO);
+    public ResponseEntity<MunicipalityInfoDTO> updateMunicipality(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody MunicipalityDTO municipalityDTO) {
+        MunicipalityInfoDTO updatedMunicipality = municipalityService.update(id, municipalityDTO);
         if (updatedMunicipality == null) {
             throw new ResponseStatusException(HttpStatus.NOT_FOUND, "municipality not found");
         }
