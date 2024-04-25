@@ -31,11 +31,7 @@ public class MunicipalityController {
 
     @GetMapping("/{id}")
     public ResponseEntity<MunicipalityInfoDTO> getMunicipalityById(@NonNull @PathVariable UUID id) {
-        MunicipalityInfoDTO municipality = municipalityService.getById(id);
-        if (municipality == null) {
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND, "municipality not found");
-        }
-        return new ResponseEntity<>(municipality, HttpStatus.OK);
+        return new ResponseEntity<>(municipalityService.getById(id), HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})

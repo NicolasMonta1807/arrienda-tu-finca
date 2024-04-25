@@ -38,6 +38,11 @@ public class PropertyController {
         return new ResponseEntity<>(propertyService.getAllProperties(), HttpStatus.OK);
     }
 
+    @GetMapping("/find")
+    public ResponseEntity<List<PropertyDTO>> findProperties(@RequestParam(required = false) UUID municipality, @RequestParam(required = false) String name) {
+        return new ResponseEntity<>(propertyService.findProperties(municipality, name), HttpStatus.OK);
+    }
+
     @GetMapping("/{id}")
     public ResponseEntity<PropertyDTO> getPropertyById(@NonNull @PathVariable UUID id) {
         return new ResponseEntity<>(propertyService.getPropertyById(id), HttpStatus.OK);
@@ -58,5 +63,4 @@ public class PropertyController {
         propertyService.deleteProperty(id);
         return ResponseEntity.noContent().build();
     }
-
 }

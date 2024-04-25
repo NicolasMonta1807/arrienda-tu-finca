@@ -1,5 +1,6 @@
 package web.mates.arriendatufinca.service;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
@@ -41,8 +42,8 @@ public class MunicipalityService {
             MunicipalityInfoDTO municipalityDTO = modelMapper.map(municipality, MunicipalityInfoDTO.class);
             municipalityDTO.setDepartmentName(municipality.get().getDepartment().getName());
             return municipalityDTO;
-        }
-        return null;
+        } else
+            throw new EntityNotFoundException("municipality not found");
     }
 
     public MunicipalityInfoDTO create(@NonNull MunicipalityDTO municipality) {

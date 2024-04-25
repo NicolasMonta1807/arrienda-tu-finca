@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import lombok.NonNull;
@@ -105,5 +106,27 @@ public class PropertyService {
         for (Property p : properties)
             propertiesDTO.add(getPropertyById(p.getId()));
         return propertiesDTO;
+    }
+
+    public List<PropertyDTO> findProperties(UUID municipality, String name) {
+        if (municipality == null && name == null)
+            return getAllProperties();
+
+        Municipality municipalityObject = null;
+        if (municipality != null)
+            municipalityObject = modelMapper.map(
+                    municipalityService.getById(municipality),
+                    Municipality.class
+            );
+
+        Iterable<Property> properties = propertyRepository.findByMunicipalityOrName(municipalityObject, name);
+
+        if (properties == null)
+            throw new EntityNotFoundException("No property found");
+
+        List<PropertyDTO> propertyDTOS = new ArrayList<>();
+        for (Property p : properties)
+            propertyDTOS.add(getPropertyById(p.getId()));
+        return propertyDTOS;
     }
 }
