@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import lombok.NonNull;
 import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.PropertyDTO;
+import web.mates.arriendatufinca.dto.PropertyInfoDTO;
 import web.mates.arriendatufinca.service.PropertyService;
 
 import java.util.List;
@@ -26,9 +27,9 @@ public class PropertyController {
     }
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<PropertyDTO>> getProperties(@RequestParam(required = false) UUID owner) {
+    public ResponseEntity<List<PropertyInfoDTO>> getProperties(@RequestParam(required = false) UUID owner) {
         if (owner != null) {
-            List<PropertyDTO> properties = propertyService.getPropertiesFromOwner(owner);
+            List<PropertyInfoDTO> properties = propertyService.getPropertiesFromOwner(owner);
             if (properties != null)
                 return new ResponseEntity<>(properties, HttpStatus.OK);
             else
@@ -39,22 +40,22 @@ public class PropertyController {
     }
 
     @GetMapping("/find")
-    public ResponseEntity<List<PropertyDTO>> findProperties(@RequestParam(required = false) UUID municipality, @RequestParam(required = false) String name) {
+    public ResponseEntity<List<PropertyInfoDTO>> findProperties(@RequestParam(required = false) UUID municipality, @RequestParam(required = false) String name) {
         return new ResponseEntity<>(propertyService.findProperties(municipality, name), HttpStatus.OK);
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PropertyDTO> getPropertyById(@NonNull @PathVariable UUID id) {
+    public ResponseEntity<PropertyInfoDTO> getPropertyById(@NonNull @PathVariable UUID id) {
         return new ResponseEntity<>(propertyService.getPropertyById(id), HttpStatus.OK);
     }
 
     @PostMapping(value = {"", "/"})
-    public ResponseEntity<PropertyDTO> newProperty(@NonNull @Valid @RequestBody PropertyDTO property) {
+    public ResponseEntity<PropertyInfoDTO> newProperty(@NonNull @Valid @RequestBody PropertyDTO property) {
         return new ResponseEntity<>(propertyService.newProperty(property), HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<PropertyDTO> updateProperty(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
+    public ResponseEntity<PropertyInfoDTO> updateProperty(@NonNull @Valid @PathVariable UUID id, @NonNull @RequestBody PropertyDTO newProperty) {
         return new ResponseEntity<>(propertyService.updateProperty(id, newProperty), HttpStatus.OK);
     }
 

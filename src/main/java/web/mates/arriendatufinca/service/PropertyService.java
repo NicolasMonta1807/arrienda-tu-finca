@@ -10,6 +10,7 @@ import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import lombok.NonNull;
 import web.mates.arriendatufinca.dto.PropertyDTO;
+import web.mates.arriendatufinca.dto.PropertyInfoDTO;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
@@ -30,9 +31,9 @@ public class PropertyService {
         this.municipalityService = municipalityService;
     }
 
-    public List<PropertyDTO> getAllProperties() {
+    public List<PropertyInfoDTO> getAllProperties() {
         Iterable<Property> properties = propertyRepository.findAll();
-        List<PropertyDTO> propertiesDTO = new ArrayList<>();
+        List<PropertyInfoDTO> propertiesDTO = new ArrayList<>();
 
         for (Property property : properties) {
             propertiesDTO.add(getPropertyById(property.getId()));
@@ -40,18 +41,19 @@ public class PropertyService {
         return propertiesDTO;
     }
 
-    public PropertyDTO getPropertyById(@NonNull UUID id) {
+    public PropertyInfoDTO getPropertyById(@NonNull UUID id) {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isPresent()) {
-            PropertyDTO propertyDTO = modelMapper.map(property, PropertyDTO.class);
+            PropertyInfoDTO propertyDTO = modelMapper.map(property, PropertyInfoDTO.class);
             propertyDTO.setOwnerID(property.get().getOwner().getId());
-            propertyDTO.setMunicipalityID(property.get().getMunicipality().getId());
+            propertyDTO.setMunicipalityName(property.get().getMunicipality().getName());
+            propertyDTO.setDepartmentName(property.get().getMunicipality().getDepartment().getName());
             return propertyDTO;
         }
         return null;
     }
 
-    public PropertyDTO newProperty(@NonNull PropertyDTO property) {
+    public PropertyInfoDTO newProperty(@NonNull PropertyDTO property) {
         Property newProperty = modelMapper.map(property, Property.class);
 
         newProperty.setOwner(
@@ -68,7 +70,7 @@ public class PropertyService {
         return getPropertyById(savedProperty.getId());
     }
 
-    public PropertyDTO updateProperty(@NonNull UUID id, @NonNull PropertyDTO newProperty) {
+    public PropertyInfoDTO updateProperty(@NonNull UUID id, @NonNull PropertyDTO newProperty) {
         Optional<Property> property = propertyRepository.findById(id);
         if (property.isPresent()) {
             property.get().setName(newProperty.getName());
@@ -94,11 +96,11 @@ public class PropertyService {
         }
     }
 
-    public List<PropertyDTO> getPropertiesFromOwner(@NonNull UUID id) {
+    public List<PropertyInfoDTO> getPropertiesFromOwner(@NonNull UUID id) {
         Iterable<Property> properties = propertyRepository.findByOwner(
                 modelMapper.map(userService.getUserById(id), User.class)
         );
-        List<PropertyDTO> propertiesDTO = new ArrayList<>();
+        List<PropertyInfoDTO> propertiesDTO = new ArrayList<>();
 
         if (properties == null)
             return null;
@@ -108,7 +110,7 @@ public class PropertyService {
         return propertiesDTO;
     }
 
-    public List<PropertyDTO> findProperties(UUID municipality, String name) {
+    public List<PropertyInfoDTO> findProperties(UUID municipality, String name) {
         if (municipality == null && name == null)
             return getAllProperties();
 
@@ -124,7 +126,7 @@ public class PropertyService {
         if (properties == null)
             throw new EntityNotFoundException("No property found");
 
-        List<PropertyDTO> propertyDTOS = new ArrayList<>();
+        List<PropertyInfoDTO> propertyDTOS = new ArrayList<>();
         for (Property p : properties)
             propertyDTOS.add(getPropertyById(p.getId()));
         return propertyDTOS;
