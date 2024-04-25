@@ -27,7 +27,8 @@ public class PropertyService {
     private final MunicipalityService municipalityService;
     private final DepartmentService departmentService;
 
-    PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper, MunicipalityService municipalityService, DepartmentService departmentService) {
+    PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper,
+            MunicipalityService municipalityService, DepartmentService departmentService) {
         this.propertyRepository = propertyRepository;
         this.userService = userService;
         this.modelMapper = modelMapper;
@@ -70,6 +71,12 @@ public class PropertyService {
                         municipalityService.getById(property.getMunicipalityID()),
                         Municipality.class));
 
+        newProperty.getMunicipality().setDepartment(
+                modelMapper.map(
+                        departmentService.findByName(
+                                municipalityService.getById(property.getMunicipalityID()).getDepartmentName()),
+                        Department.class));
+
         Property savedProperty = propertyRepository.save(newProperty);
         return getPropertyById(savedProperty.getId());
     }
@@ -86,13 +93,13 @@ public class PropertyService {
             property.get().setPetFriendly(newProperty.isPetFriendly());
             property.get().setPool(newProperty.isPool());
 
-            property.get().setMunicipality(modelMapper.map(municipalityService.getById(newProperty.getMunicipalityID()), Municipality.class));
+            property.get().setMunicipality(
+                    modelMapper.map(municipalityService.getById(newProperty.getMunicipalityID()), Municipality.class));
             property.get().getMunicipality().setDepartment(
                     modelMapper.map(
-                            departmentService.findByName(municipalityService.getById(newProperty.getMunicipalityID()).getDepartmentName()),
-                            Department.class
-                    )
-            );
+                            departmentService.findByName(
+                                    municipalityService.getById(newProperty.getMunicipalityID()).getDepartmentName()),
+                            Department.class));
 
             propertyRepository.save(property.get());
             return getPropertyById(property.get().getId());
@@ -111,8 +118,7 @@ public class PropertyService {
 
     public List<PropertyInfoDTO> getPropertiesFromOwner(@NonNull UUID id) {
         Iterable<Property> properties = propertyRepository.findByOwner(
-                modelMapper.map(userService.getUserById(id), User.class)
-        );
+                modelMapper.map(userService.getUserById(id), User.class));
         List<PropertyInfoDTO> propertiesDTO = new ArrayList<>();
 
         if (properties == null)
@@ -131,8 +137,7 @@ public class PropertyService {
         if (municipality != null)
             municipalityObject = modelMapper.map(
                     municipalityService.getById(municipality),
-                    Municipality.class
-            );
+                    Municipality.class);
 
         Iterable<Property> properties = propertyRepository.findByMunicipalityOrName(municipalityObject, name);
 
