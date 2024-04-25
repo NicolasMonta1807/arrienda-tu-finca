@@ -2,6 +2,7 @@ package web.mates.arriendatufinca.controller;
 
 import jakarta.validation.Valid;
 import lombok.NonNull;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -25,14 +26,17 @@ public class BookingController {
 
     @GetMapping(value = {"", "/"})
     public ResponseEntity<List<BookingDTO>> getAllBookings(@RequestParam(required = false) UUID lessee, @RequestParam(required = false) UUID lessor) {
-        UUID userId = lessee != null ? lessee : lessor;
-        List<BookingDTO> bookings = lessee != null
-                ? bookingService.getBookingsFromLessee(userId)
-                : bookingService.getBookingsFromLessor(userId);
+        if (lessee == null && lessor == null)
+            return new ResponseEntity<>(bookingService.getAll(), HttpStatus.OK);
 
         if (lessee != null && lessor != null) {
             throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
         }
+
+        UUID userId = lessee != null ? lessee : lessor;
+        List<BookingDTO> bookings = lessee != null
+                ? bookingService.getBookingsFromLessee(userId)
+                : bookingService.getBookingsFromLessor(userId);
 
         return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
