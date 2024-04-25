@@ -81,6 +81,9 @@ public class PropertyService {
             property.get().setBbq(newProperty.isBbq());
             property.get().setPetFriendly(newProperty.isPetFriendly());
             property.get().setPool(newProperty.isPool());
+
+            property.get().setMunicipality(modelMapper.map(municipalityService.getById(newProperty.getMunicipalityID()), Municipality.class));
+
             propertyRepository.save(property.get());
             return getPropertyById(property.get().getId());
         } else
