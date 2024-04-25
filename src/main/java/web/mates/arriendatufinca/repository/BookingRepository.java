@@ -1,7 +1,6 @@
 package web.mates.arriendatufinca.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;

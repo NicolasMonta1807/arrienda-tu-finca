@@ -7,6 +7,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.BookingDTO;
 import web.mates.arriendatufinca.dto.PropertyDTO;
+import web.mates.arriendatufinca.dto.PropertyInfoDTO;
 import web.mates.arriendatufinca.exceptions.InvalidDateException;
 import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.model.Property;
@@ -112,10 +113,10 @@ public class BookingService {
     }
 
     public List<BookingDTO> getBookingsFromLessor(UUID id) {
-        List<PropertyDTO> properties = propertyService.getPropertiesFromOwner(id);
+        List<PropertyInfoDTO> properties = propertyService.getPropertiesFromOwner(id);
         List<BookingDTO> bookingDTOS = new ArrayList<>();
 
-        for (PropertyDTO property : properties) {
+        for (PropertyInfoDTO property : properties) {
             Iterable<Booking> bookings = bookingRepository.findByProperty(
                     modelMapper.map(property, Property.class)
             );
