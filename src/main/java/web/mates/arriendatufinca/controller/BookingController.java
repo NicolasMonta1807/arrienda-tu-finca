@@ -24,8 +24,17 @@ public class BookingController {
     }
 
     @GetMapping(value = {"", "/"})
-    public ResponseEntity<List<BookingDTO>> getAllBookings() {
-        return new ResponseEntity<>(bookingService.getAll(), HttpStatus.OK);
+    public ResponseEntity<List<BookingDTO>> getAllBookings(@RequestParam(required = false) UUID lessee, @RequestParam(required = false) UUID lessor) {
+        UUID userId = lessee != null ? lessee : lessor;
+        List<BookingDTO> bookings = lessee != null
+                ? bookingService.getBookingsFromLessee(userId)
+                : bookingService.getBookingsFromLessor(userId);
+
+        if (lessee != null && lessor != null) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST);
+        }
+
+        return new ResponseEntity<>(bookings, HttpStatus.OK);
     }
 
     @GetMapping("/{id}")

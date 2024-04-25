@@ -8,5 +8,5 @@ import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
 
 public interface PropertyRepository extends CrudRepository<Property, UUID> {
-    Property findByOwner(User owner);
+    Iterable<Property> findByOwner(User owner);
 }
