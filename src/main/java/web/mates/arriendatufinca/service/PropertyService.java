@@ -9,8 +9,10 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import lombok.NonNull;
+import web.mates.arriendatufinca.dto.DepartmentDTO;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.PropertyInfoDTO;
+import web.mates.arriendatufinca.model.Department;
 import web.mates.arriendatufinca.model.Municipality;
 import web.mates.arriendatufinca.model.Property;
 import web.mates.arriendatufinca.model.User;
@@ -23,12 +25,14 @@ public class PropertyService {
     private final UserService userService;
     private final ModelMapper modelMapper;
     private final MunicipalityService municipalityService;
+    private final DepartmentService departmentService;
 
-    PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper, MunicipalityService municipalityService) {
+    PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper, MunicipalityService municipalityService, DepartmentService departmentService) {
         this.propertyRepository = propertyRepository;
         this.userService = userService;
         this.modelMapper = modelMapper;
         this.municipalityService = municipalityService;
+        this.departmentService = departmentService;
     }
 
     public List<PropertyInfoDTO> getAllProperties() {
@@ -83,6 +87,12 @@ public class PropertyService {
             property.get().setPool(newProperty.isPool());
 
             property.get().setMunicipality(modelMapper.map(municipalityService.getById(newProperty.getMunicipalityID()), Municipality.class));
+            property.get().getMunicipality().setDepartment(
+                    modelMapper.map(
+                            departmentService.findByName(municipalityService.getById(newProperty.getMunicipalityID()).getDepartmentName()),
+                            Department.class
+                    )
+            );
 
             propertyRepository.save(property.get());
             return getPropertyById(property.get().getId());

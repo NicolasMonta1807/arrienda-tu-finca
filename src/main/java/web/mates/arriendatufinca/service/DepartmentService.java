@@ -2,7 +2,9 @@ package web.mates.arriendatufinca.service;
 
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.DepartmentDTO;
 import web.mates.arriendatufinca.dto.MunicipalitySimpleDTO;
 import web.mates.arriendatufinca.model.Department;
@@ -52,6 +54,14 @@ public class DepartmentService {
             return dto;
         }
         return null;
+    }
+
+    public DepartmentDTO findByName(@NonNull String name) {
+        Optional<Department> department = departmentRepository.findByName(name);
+        if (department.isPresent())
+            return modelMapper.map(department, DepartmentDTO.class);
+
+        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found");
     }
 
     public DepartmentDTO create(@NonNull DepartmentDTO department) {
