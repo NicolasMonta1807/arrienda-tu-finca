@@ -2,8 +2,11 @@ package web.mates.arriendatufinca.service;
 
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.BookingDTO;
+import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.exceptions.InvalidDateException;
 import web.mates.arriendatufinca.model.Booking;
 import web.mates.arriendatufinca.model.Property;
@@ -92,5 +95,35 @@ public class BookingService {
 
     public void delete(@NonNull UUID id) {
         bookingRepository.deleteById(id);
+    }
+
+    public List<BookingDTO> getBookingsFromLessee(UUID id) {
+        Iterable<Booking> bookings = bookingRepository.findByLessee(
+                modelMapper.map(userService.getUserById(id), User.class)
+        );
+        if (bookings == null)
+            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
+
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+
+        for (Booking b : bookings)
+            bookingDTOS.add(getById(b.getId()));
+        return bookingDTOS;
+    }
+
+    public List<BookingDTO> getBookingsFromLessor(UUID id) {
+        List<PropertyDTO> properties = propertyService.getPropertiesFromOwner(id);
+        List<BookingDTO> bookingDTOS = new ArrayList<>();
+
+        for (PropertyDTO property : properties) {
+            Iterable<Booking> bookings = bookingRepository.findByProperty(
+                    modelMapper.map(property, Property.class)
+            );
+            for (Booking booking : bookings) {
+                bookingDTOS.add(getById(booking.getId()));
+            }
+        }
+
+        return bookingDTOS;
     }
 }

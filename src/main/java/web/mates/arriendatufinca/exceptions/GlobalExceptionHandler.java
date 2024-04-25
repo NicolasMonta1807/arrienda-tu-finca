@@ -1,5 +1,6 @@
 package web.mates.arriendatufinca.exceptions;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -62,5 +63,10 @@ public class GlobalExceptionHandler {
         HashMap<String, String> error = new HashMap<>();
         error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.status(401).body(error);
+    }
+
+    @ExceptionHandler(EntityNotFoundException.class)
+    public ResponseEntity<Object> handleEntityNotFoundException(EntityNotFoundException ex) {
+        return ResponseEntity.status(404).build();
     }
 }
