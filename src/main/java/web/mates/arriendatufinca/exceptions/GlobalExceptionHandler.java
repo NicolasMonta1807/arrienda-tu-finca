@@ -1,6 +1,6 @@
 package web.mates.arriendatufinca.exceptions;
 
-import jakarta.persistence.EntityNotFoundException;
+import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -18,18 +18,10 @@ public class GlobalExceptionHandler {
 
     static final String ERROR_KEY = "error";
 
-    @ExceptionHandler(DuplicateEmailException.class)
-    public ResponseEntity<Object> handleDuplicateEmailException(DuplicateEmailException ex) {
-        HashMap<String, String> error = new HashMap<>();
-        error.put(ERROR_KEY, ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(DuplicateMunicipalityException.class)
-    public ResponseEntity<Object> handleDuplicateMunicipalityException(DuplicateMunicipalityException ex) {
-        HashMap<String, String> error = new HashMap<>();
-        error.put(ERROR_KEY, ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
+    private Map<String, List<String>> getErrorsMap(List<String> errors) {
+        HashMap<String, List<String>> errorsMap = new HashMap<>();
+        errorsMap.put(ERROR_KEY, errors);
+        return errorsMap;
     }
 
     @ExceptionHandler(MethodArgumentNotValidException.class)
@@ -38,31 +30,11 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(getErrorsMap(errors), new HttpHeaders(), HttpStatus.BAD_REQUEST);
     }
 
-    private Map<String, List<String>> getErrorsMap(List<String> errors) {
-        HashMap<String, List<String>> errorsMap = new HashMap<>();
-        errorsMap.put(ERROR_KEY, errors);
-        return errorsMap;
-    }
-
-    @ExceptionHandler(InvalidDateException.class)
-    public ResponseEntity<Object> handleInvalidDateException(InvalidDateException ex) {
+    @ExceptionHandler(ExpiredJwtException.class)
+    public ResponseEntity<Object> handleExpiredTokenException(RuntimeException ex) {
         HashMap<String, String> error = new HashMap<>();
         error.put(ERROR_KEY, ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(InvalidBookingStateException.class)
-    public ResponseEntity<Object> handleInvalidBookingStateException(InvalidBookingStateException ex) {
-        HashMap<String, String> error = new HashMap<>();
-        error.put(ERROR_KEY, ex.getMessage());
-        return ResponseEntity.badRequest().body(error);
-    }
-
-    @ExceptionHandler(InvalidCredentialsException.class)
-    public ResponseEntity<Object> handleInvalidCredentialsException(InvalidCredentialsException ex) {
-        HashMap<String, String> error = new HashMap<>();
-        error.put(ERROR_KEY, ex.getMessage());
-        return ResponseEntity.status(401).body(error);
+        return ResponseEntity.status(403).body(error);
     }
 
     @ExceptionHandler(EntityNotFoundException.class)
@@ -70,5 +42,19 @@ public class GlobalExceptionHandler {
         HashMap<String, String> error = new HashMap<>();
         error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.status(404).body(error);
+    }
+
+    @ExceptionHandler({DuplicateEmailException.class, InvalidBookingException.class})
+    public ResponseEntity<Object> handleBadRequestException(RuntimeException ex) {
+        HashMap<String, String> error = new HashMap<>();
+        error.put(ERROR_KEY, ex.getMessage());
+        return ResponseEntity.status(400).body(error);
+    }
+
+    @ExceptionHandler(UnauthorizedException.class)
+    public ResponseEntity<Object> handleUnauthorizedException(UnauthorizedException ex) {
+        HashMap<String, String> error = new HashMap<>();
+        error.put(ERROR_KEY, ex.getMessage());
+        return ResponseEntity.status(401).body(error);
     }
 }

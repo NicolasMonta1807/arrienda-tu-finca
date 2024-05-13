@@ -1,110 +1,116 @@
 package web.mates.arriendatufinca.service;
 
-import java.util.*;
-
-import jakarta.persistence.EntityNotFoundException;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-
+import jakarta.validation.Valid;
 import lombok.NonNull;
-import web.mates.arriendatufinca.dto.RequestUserDTO;
-import web.mates.arriendatufinca.dto.SignInDTO;
-import web.mates.arriendatufinca.dto.UserDTO;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.exceptions.DuplicateEmailException;
-import web.mates.arriendatufinca.exceptions.InvalidCredentialsException;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
+import web.mates.arriendatufinca.exceptions.UnauthorizedException;
+import web.mates.arriendatufinca.exceptions.EntityNotFoundException;
+import web.mates.arriendatufinca.model.user.User;
+import web.mates.arriendatufinca.model.user.dto.SignUpDTO;
+import web.mates.arriendatufinca.model.user.dto.SimpleUserDTO;
 import web.mates.arriendatufinca.repository.UserRepository;
+import web.mates.arriendatufinca.security.CustomUserDetailsService;
+import web.mates.arriendatufinca.security.jwt.JWTFilter;
+import web.mates.arriendatufinca.security.jwt.JWTUtil;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class UserService {
-
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final AuthenticationManager authenticationManager;
+    private final CustomUserDetailsService customUserDetailsService;
+    private final JWTUtil jwtUtil;
+    private final JWTFilter jwtFilter;
 
-    UserService(UserRepository userRepository, ModelMapper modelMapper) {
+    UserService(UserRepository userRepository, ModelMapper modelMapper, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil, JWTFilter jwtFilter) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
+        this.authenticationManager = authenticationManager;
+        this.customUserDetailsService = customUserDetailsService;
+        this.jwtUtil = jwtUtil;
+        this.jwtFilter = jwtFilter;
     }
 
-    public List<UserDTO> getAllUsers() {
+    private void checkAuth(String emailToCheck) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equalsIgnoreCase(emailToCheck))
+            throw new UnauthorizedException("Not authorized");
+    }
+
+    public List<SimpleUserDTO> getAll() {
+        if (!jwtFilter.isAdmin())
+            throw new UnauthorizedException();
+
         Iterable<User> users = userRepository.findAll();
-        List<UserDTO> usersDTO = new ArrayList<>();
+        List<SimpleUserDTO> userDTOS = new ArrayList<>();
 
-        for (User user : users) {
-            usersDTO.add(modelMapper.map(user, UserDTO.class));
-        }
-        return usersDTO;
+        for (User user : users)
+            userDTOS.add(modelMapper.map(user, SimpleUserDTO.class));
+
+        return userDTOS;
     }
 
-    public UserDTO getUserById(@NonNull UUID id) {
+    public SimpleUserDTO getById(@NonNull UUID id) {
         Optional<User> user = userRepository.findById(id);
         if (user.isPresent())
-            return modelMapper.map(user.get(), UserDTO.class);
-        else
-            throw new EntityNotFoundException("User not found");
+            return modelMapper.map(user, SimpleUserDTO.class);
+        return null;
     }
 
-    public UserDTO newUser(@NonNull RequestUserDTO user) {
-
+    public SimpleUserDTO create(@NonNull SignUpDTO user) {
         if (userRepository.existsByEmail(user.getEmail())) {
             throw new DuplicateEmailException("Email already exists");
         }
 
-        User newUser = modelMapper.map(user, User.class);
-
-        if (newUser == null) {
-            return null;
-        }
-
-        User savedUser = userRepository.save(newUser);
-        return getUserById(savedUser.getId());
+        User userToSave = modelMapper.map(user, User.class);
+        userToSave.setRole("user");
+        User saved = userRepository.save(userToSave);
+        return modelMapper.map(saved, SimpleUserDTO.class);
     }
 
-    public UserDTO login(@NonNull SignInDTO user) {
-        Optional<User> requestedUser = userRepository.findByEmail(user.getEmail());
-        if (requestedUser.isEmpty()) {
-            throw new InvalidCredentialsException("Email does not exist");
-        }
-
-        if (requestedUser.get().getPassword().equals(user.getPassword())) {
-            return modelMapper.map(requestedUser, UserDTO.class);
-        } else {
-            throw new InvalidCredentialsException("Invalid email or password");
-        }
+    public String login(String email, String password) {
+        Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
+        if (authentication.isAuthenticated())
+            return jwtUtil.generateToken(
+                    customUserDetailsService.getUserDetail().getId(),
+                    customUserDetailsService.getUserDetail().getEmail(),
+                    customUserDetailsService.getUserDetail().getRole());
+        else
+            throw new UnauthorizedException("Invalid Credentials");
     }
 
-    public UserDTO updateUser(@NonNull UUID id, @NonNull UserDTO newUser) {
-        Optional<User> requestedUser = userRepository.findById(id);
-        if (requestedUser.isPresent()) {
-            User user = requestedUser.get();
-            user.setName(newUser.getName());
-            user.setEmail(newUser.getEmail());
-            user.setPhoneNumber(newUser.getPhoneNumber());
-            userRepository.save(user);
-            return newUser;
-        } else
+    public SimpleUserDTO update(@NonNull UUID id, @NonNull @Valid SimpleUserDTO user) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (foundUser.isEmpty())
             throw new EntityNotFoundException("User not found");
+
+        User userToUpdate = foundUser.get();
+        checkAuth(userToUpdate.getEmail());
+        userToUpdate.setName(user.getName());
+        userToUpdate.setLastName(user.getLastName());
+        userToUpdate.setEmail(user.getEmail());
+        userToUpdate.setPhoneNumber(user.getPhoneNumber());
+
+        return modelMapper.map(userRepository.save(userToUpdate), SimpleUserDTO.class);
     }
 
-    public void removeProperty(@NonNull UUID userId, @NonNull Property property) {
-        Optional<User> user = userRepository.findById(userId);
-        if (user.isPresent()) {
-            Set<Property> properties = user.get().getProperties();
-            properties.remove(property);
-            user.get().setProperties(properties);
-            userRepository.save(user.get());
-        }
-    }
+    public void delete(@NonNull UUID id) {
+        Optional<User> foundUser = userRepository.findById(id);
+        if (foundUser.isEmpty())
+            return;
 
-    public void deleteUser(@NonNull UUID id) {
-        Optional<User> user = userRepository.findById(id);
-        if (user.isPresent()) {
-            Set<Property> properties = user.get().getProperties();
-            properties.forEach(p -> p.setDeleted(true));
-            user.get().setProperties(properties);
-            userRepository.save(user.get());
-            userRepository.deleteById(id);
-        }
+        checkAuth(foundUser.get().getEmail());
+        userRepository.deleteById(id);
     }
 }

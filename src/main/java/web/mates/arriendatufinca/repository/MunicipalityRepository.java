@@ -1,7 +1,7 @@
 package web.mates.arriendatufinca.repository;
 
 import org.springframework.data.repository.CrudRepository;
-import web.mates.arriendatufinca.model.Municipality;
+import web.mates.arriendatufinca.model.municipality.Municipality;
 
 import java.util.UUID;
 

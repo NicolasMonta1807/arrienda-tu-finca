@@ -1,129 +1,164 @@
 package web.mates.arriendatufinca.service;
 
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import web.mates.arriendatufinca.dto.BookingDTO;
-import web.mates.arriendatufinca.dto.PropertyInfoDTO;
-import web.mates.arriendatufinca.exceptions.InvalidDateException;
-import web.mates.arriendatufinca.model.Booking;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
+import web.mates.arriendatufinca.exceptions.EntityNotFoundException;
+import web.mates.arriendatufinca.exceptions.InvalidBookingException;
+import web.mates.arriendatufinca.exceptions.UnauthorizedException;
+import web.mates.arriendatufinca.model.booking.Booking;
+import web.mates.arriendatufinca.model.booking.dto.MyBookingsDTO;
+import web.mates.arriendatufinca.model.booking.dto.NewBookingDTO;
+import web.mates.arriendatufinca.model.booking.dto.SimpleBookingDTO;
+import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.user.User;
 import web.mates.arriendatufinca.repository.BookingRepository;
+import web.mates.arriendatufinca.security.jwt.JWTFilter;
 
 import java.util.*;
 
 @Service
 public class BookingService {
     private final BookingRepository bookingRepository;
-    private final ModelMapper modelMapper;
-    private final UserService userService;
     private final PropertyService propertyService;
+    private final UserService userService;
+    private final ModelMapper modelMapper;
+    private final JWTFilter jwtFilter;
 
-    BookingService(BookingRepository bookingRepository, ModelMapper modelMapper, UserService userService, PropertyService propertyService) {
+    BookingService(BookingRepository bookingRepository, PropertyService propertyService, UserService userService, ModelMapper modelMapper, JWTFilter jwtFilter) {
         this.bookingRepository = bookingRepository;
-        this.modelMapper = modelMapper;
-        this.userService = userService;
         this.propertyService = propertyService;
+        this.userService = userService;
+        this.modelMapper = modelMapper;
+        this.jwtFilter = jwtFilter;
     }
 
-    public List<BookingDTO> getAll() {
+    private Boolean checkAuth(String emailToCheck) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        return auth.getName().equalsIgnoreCase(emailToCheck);
+    }
+
+    public List<SimpleBookingDTO> getAll() {
         Iterable<Booking> bookings = bookingRepository.findAll();
-        List<BookingDTO> bookingDTOS = new ArrayList<>();
+        List<SimpleBookingDTO> bookingDTOS = new ArrayList<>();
 
         for (Booking b : bookings) {
-            bookingDTOS.add(getById(b.getId()));
+            SimpleBookingDTO bookingDTO = modelMapper.map(b, SimpleBookingDTO.class);
+            bookingDTO.setLesseeId(b.getLessee().getId());
+            bookingDTO.setPropertyId(b.getProperty().getId());
+            bookingDTOS.add(bookingDTO);
         }
+
         return bookingDTOS;
     }
 
-    public BookingDTO getById(@NonNull UUID id) {
-        Optional<Booking> booking = bookingRepository.findById(id);
-        if (booking.isPresent()) {
-            BookingDTO bookingDTO = modelMapper.map(booking.get(), BookingDTO.class);
-            bookingDTO.setLesseeId(booking.get().getLessee().getId());
-            bookingDTO.setPropertyId(booking.get().getProperty().getId());
-            return bookingDTO;
-        }
-        return null;
+    public SimpleBookingDTO getById(@NonNull UUID id) {
+        Optional<Booking> foundBooking = bookingRepository.findById(id);
+        if (foundBooking.isEmpty())
+            throw new EntityNotFoundException("Booking not found");
+
+        SimpleBookingDTO bookingDTO = modelMapper.map(foundBooking.get(), SimpleBookingDTO.class);
+        Booking booking = foundBooking.get();
+
+        bookingDTO.setLesseeId(booking.getLessee().getId());
+        bookingDTO.setPropertyId(booking.getProperty().getId());
+        return bookingDTO;
     }
 
-    public BookingDTO create(@NonNull BookingDTO bookingDTO) {
-        Booking newBooking = modelMapper.map(bookingDTO, Booking.class);
+    public MyBookingsDTO getByUser() {
+        UUID authId = jwtFilter.getAuthId();
+        Iterable<Booking> bookingsAsLessee = bookingRepository.findByUserAsLessee(authId);
+        Iterable<Booking> bookingsAsLessor = bookingRepository.findByUserAsLessor(authId);
 
-        if (bookingDTO.getStartDate().before(new Date()))
-            throw new InvalidDateException("The start date cannot be earlier than the current date");
+        List<SimpleBookingDTO> bookingDTOSAsLessee = new ArrayList<>();
+        List<SimpleBookingDTO> bookingDTOSAsLessor = new ArrayList<>();
+
+        for (Booking b : bookingsAsLessee)
+            bookingDTOSAsLessee.add(getById(b.getId()));
+
+        for (Booking b : bookingsAsLessor)
+            bookingDTOSAsLessor.add(getById(b.getId()));
 
 
-        Date startDate = bookingDTO.getStartDate();
+        MyBookingsDTO result = MyBookingsDTO.builder().build();
+        result.setAsLessee(bookingDTOSAsLessee);
+        result.setAsLessor(bookingDTOSAsLessor);
+        return result;
+    }
+
+    private void validateBooking(Booking booking, Property property) {
+        Date startDate = booking.getStartDate();
         Calendar calendar = Calendar.getInstance();
         calendar.setTime(startDate);
         calendar.add(Calendar.DAY_OF_MONTH, 1);
         Date dateToCompare = calendar.getTime();
 
-        if (bookingDTO.getEndDate().before(dateToCompare))
-            throw new InvalidDateException("The end date should be at least one day after start date");
+        if (booking.getStartDate().before(new Date()))
+            throw new InvalidBookingException("The start date cannot be earlier than the current date");
 
+        if (booking.getEndDate().before(dateToCompare))
+            throw new InvalidBookingException("The end date should be at least one day after start date");
 
-        newBooking.setLessee(
-                modelMapper.map(
-                        userService.getUserById(bookingDTO.getLesseeId()),
-                        User.class));
-
-        newBooking.setProperty(
-                modelMapper.map(
-                        propertyService.getPropertyById(bookingDTO.getPropertyId()),
-                        Property.class));
-
-        Booking savedBooking = bookingRepository.save(newBooking);
-        return getById(savedBooking.getId());
+        if (booking.getGuests() > property.getRooms() * 3)
+            throw new InvalidBookingException("This property can not host so many guests");
     }
 
-    public BookingDTO update(@NonNull UUID id, @NonNull BookingDTO bookingDTO) {
-        Optional<Booking> booking = bookingRepository.findById(id);
-        if (booking.isPresent()) {
-            Booking foundBooking = booking.get();
-            foundBooking.setStatus(bookingDTO.getStatus());
-            foundBooking.setGuests(bookingDTO.getGuests());
-            bookingRepository.save(foundBooking);
-            return getById(foundBooking.getId());
-        } else
-            return null;
+    public SimpleBookingDTO create(@NonNull @Valid NewBookingDTO booking) {
+        UUID authId = jwtFilter.getAuthId();
+        Property property = modelMapper.map(propertyService.getById(booking.getPropertyId()), Property.class);
+        Booking bookingToSave = modelMapper.map(booking, Booking.class);
+        bookingToSave.setLessee(modelMapper.map(
+                userService.getById(authId),
+                User.class
+        ));
+        bookingToSave.setProperty(property);
+
+        Booking saved = bookingRepository.save(bookingToSave);
+        return getById(saved.getId());
+    }
+
+    public SimpleBookingDTO update(@NonNull UUID id, @NonNull @Valid NewBookingDTO booking) {
+        Optional<Booking> foundBooking = bookingRepository.findById(id);
+        UUID authId = jwtFilter.getAuthId();
+        if (foundBooking.isEmpty())
+            throw new EntityNotFoundException("Booking not found");
+
+        // Check if either lessee or lessor is updating
+        if (!checkAuth(foundBooking.get().getLessee().getEmail()) &&
+                !checkAuth(foundBooking.get().getProperty().getOwner().getEmail()))
+            throw new UnauthorizedException();
+
+        Booking bookingToSave = modelMapper.map(booking, Booking.class);
+        Property property = modelMapper.map(propertyService.getById(booking.getPropertyId()), Property.class);
+
+        validateBooking(bookingToSave, property);
+
+        bookingToSave.setLessee(modelMapper.map(
+                userService.getById(authId),
+                User.class
+        ));
+        bookingToSave.setProperty(property);
+        bookingToSave.setStartDate(booking.getStartDate());
+        bookingToSave.setEndDate(booking.getStartDate());
+        bookingToSave.setGuests(booking.getGuests());
+        bookingToSave.setStatus(booking.getStatus());
+
+        return modelMapper.map(bookingRepository.save(bookingToSave), SimpleBookingDTO.class);
     }
 
     public void delete(@NonNull UUID id) {
+        Optional<Booking> bookingToDelete = bookingRepository.findById(id);
+        if (bookingToDelete.isEmpty())
+            return;
+
+        // Check if either lessee or lessor is updating
+        if (!checkAuth(bookingToDelete.get().getLessee().getEmail()) &&
+                !checkAuth(bookingToDelete.get().getProperty().getOwner().getEmail()))
+            throw new UnauthorizedException();
+
         bookingRepository.deleteById(id);
-    }
-
-    public List<BookingDTO> getBookingsFromLessee(UUID id) {
-        Iterable<Booking> bookings = bookingRepository.findByLessee(
-                modelMapper.map(userService.getUserById(id), User.class)
-        );
-        if (bookings == null)
-            throw new ResponseStatusException(HttpStatus.NOT_FOUND);
-
-        List<BookingDTO> bookingDTOS = new ArrayList<>();
-
-        for (Booking b : bookings)
-            bookingDTOS.add(getById(b.getId()));
-        return bookingDTOS;
-    }
-
-    public List<BookingDTO> getBookingsFromLessor(UUID id) {
-        List<PropertyInfoDTO> properties = propertyService.getPropertiesFromOwner(id);
-        List<BookingDTO> bookingDTOS = new ArrayList<>();
-
-        for (PropertyInfoDTO property : properties) {
-            Iterable<Booking> bookings = bookingRepository.findByProperty(
-                    modelMapper.map(property, Property.class)
-            );
-            for (Booking booking : bookings) {
-                bookingDTOS.add(getById(booking.getId()));
-            }
-        }
-
-        return bookingDTOS;
     }
 }
