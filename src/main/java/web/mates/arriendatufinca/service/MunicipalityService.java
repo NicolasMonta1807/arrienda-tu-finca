@@ -1,68 +1,81 @@
 package web.mates.arriendatufinca.service;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
-import web.mates.arriendatufinca.dto.MunicipalityDTO;
-import web.mates.arriendatufinca.dto.MunicipalityInfoDTO;
-import web.mates.arriendatufinca.model.Department;
-import web.mates.arriendatufinca.model.Municipality;
-import web.mates.arriendatufinca.model.Property;
+import web.mates.arriendatufinca.exceptions.UnauthorizedException;
+import web.mates.arriendatufinca.model.department.Department;
+import web.mates.arriendatufinca.model.municipality.Municipality;
+import web.mates.arriendatufinca.model.municipality.SimpleMunicipalityDTO;
 import web.mates.arriendatufinca.repository.MunicipalityRepository;
+import web.mates.arriendatufinca.security.jwt.JWTFilter;
 
-import java.util.*;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class MunicipalityService {
     private final MunicipalityRepository municipalityRepository;
-    private final DepartmentService departmentService;
     private final ModelMapper modelMapper;
+    private final JWTFilter jwtFilter;
+    private final DepartmentService departmentService;
 
-    MunicipalityService(MunicipalityRepository municipalityRepository, ModelMapper modelMapper, DepartmentService departmentService) {
+    MunicipalityService(MunicipalityRepository municipalityRepository, ModelMapper modelMapper, JWTFilter jwtFilter, DepartmentService departmentService) {
         this.municipalityRepository = municipalityRepository;
         this.modelMapper = modelMapper;
+        this.jwtFilter = jwtFilter;
         this.departmentService = departmentService;
     }
 
-    public List<MunicipalityInfoDTO> getAll() {
+    public List<SimpleMunicipalityDTO> getAll() {
         Iterable<Municipality> municipalities = municipalityRepository.findAll();
-        List<MunicipalityInfoDTO> municipalityDTOS = new ArrayList<>();
+        List<SimpleMunicipalityDTO> municipalityDTOS = new ArrayList<>();
 
         for (Municipality m : municipalities) {
-            municipalityDTOS.add(getById(m.getId()));
+            SimpleMunicipalityDTO dto = modelMapper.map(m, SimpleMunicipalityDTO.class);
+            dto.setDepartmentName(m.getDepartment().getName());
+            municipalityDTOS.add(dto);
         }
 
         return municipalityDTOS;
     }
 
-    public MunicipalityInfoDTO getById(@NonNull UUID id) {
+    public SimpleMunicipalityDTO getById(@NonNull UUID id) {
         Optional<Municipality> municipality = municipalityRepository.findById(id);
-        if (municipality.isPresent()) {
-            MunicipalityInfoDTO municipalityDTO = modelMapper.map(municipality, MunicipalityInfoDTO.class);
-            municipalityDTO.setDepartmentName(municipality.get().getDepartment().getName());
-            return municipalityDTO;
-        } else
-            throw new EntityNotFoundException("municipality not found");
+
+        if (municipality.isEmpty())
+            throw new EntityNotFoundException("Municipality not found");
+
+        SimpleMunicipalityDTO dto = modelMapper.map(municipality.get(), SimpleMunicipalityDTO.class);
+        dto.setDepartmentName(municipality.get().getDepartment().getName());
+
+        return dto;
     }
 
-    public MunicipalityInfoDTO create(@NonNull MunicipalityDTO municipality) {
-        Municipality newMunicipality = modelMapper.map(municipality, Municipality.class);
+    public SimpleMunicipalityDTO create(@NonNull @Valid SimpleMunicipalityDTO municipality) {
+        if (!jwtFilter.isAdmin())
+            throw new UnauthorizedException();
 
-        newMunicipality.setDepartment(
-                modelMapper.map(departmentService.getById(municipality.getDepartmentId()), Department.class)
-        );
+        Municipality newMunicipality = modelMapper.map(municipality, Municipality.class);
+        newMunicipality.setDepartment(modelMapper.map(departmentService.findByName(municipality.getDepartmentName()), Department.class));
         municipalityRepository.save(newMunicipality);
-        System.out.println("NEW MUNI: " + newMunicipality.getName() + " - " + newMunicipality.getDepartment());
+
         return getById(newMunicipality.getId());
     }
 
-    public MunicipalityInfoDTO update(@NonNull UUID id, @NonNull MunicipalityDTO municipalityDTO) {
+    public SimpleMunicipalityDTO update(@NonNull UUID id, @NonNull @Valid SimpleMunicipalityDTO municipalityDTO) {
+        if(!jwtFilter.isAdmin())
+            throw new UnauthorizedException();
+
         Optional<Municipality> municipality = municipalityRepository.findById(id);
         if (municipality.isPresent()) {
             municipality.get().setName(municipalityDTO.getName());
             municipality.get().setDepartment(
-                    modelMapper.map(departmentService.getById(municipalityDTO.getDepartmentId()), Department.class)
+                    modelMapper.map(departmentService.findByName(municipalityDTO.getDepartmentName()), Department.class)
             );
             municipalityRepository.save(municipality.get());
             return getById(id);
@@ -71,16 +84,8 @@ public class MunicipalityService {
     }
 
     public void delete(@NonNull UUID id) {
+        if(!jwtFilter.isAdmin())
+            throw new UnauthorizedException();
         municipalityRepository.deleteById(id);
-    }
-
-    public void removeProperty(@NonNull UUID municipalityId, @NonNull Property property) {
-        Optional<Municipality> municipality = municipalityRepository.findById(municipalityId);
-        if (municipality.isPresent()) {
-            Set<Property> properties = municipality.get().getProperties();
-            properties.remove(property);
-            municipality.get().setProperties(properties);
-            municipalityRepository.save(municipality.get());
-        }
     }
 }

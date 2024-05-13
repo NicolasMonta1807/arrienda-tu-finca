@@ -1,15 +1,17 @@
 package web.mates.arriendatufinca.service;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
-import org.springframework.web.server.ResponseStatusException;
-import web.mates.arriendatufinca.dto.DepartmentDTO;
-import web.mates.arriendatufinca.dto.MunicipalitySimpleDTO;
-import web.mates.arriendatufinca.model.Department;
-import web.mates.arriendatufinca.model.Municipality;
+import web.mates.arriendatufinca.exceptions.UnauthorizedException;
+import web.mates.arriendatufinca.model.department.Department;
+import web.mates.arriendatufinca.model.department.dto.SimpleDepartmentDTO;
+import web.mates.arriendatufinca.model.municipality.Municipality;
+import web.mates.arriendatufinca.model.municipality.SimpleMunicipalityDTO;
 import web.mates.arriendatufinca.repository.DepartmentRepository;
+import web.mates.arriendatufinca.security.jwt.JWTFilter;
 
 import java.util.*;
 
@@ -17,54 +19,59 @@ import java.util.*;
 public class DepartmentService {
     private final DepartmentRepository departmentRepository;
     private final ModelMapper modelMapper;
+    private final JWTFilter jwtFilter;
 
-    DepartmentService(DepartmentRepository departmentRepository, ModelMapper modelMapper) {
+    DepartmentService(DepartmentRepository departmentRepository, ModelMapper modelMapper, JWTFilter jwtFilter) {
         this.departmentRepository = departmentRepository;
         this.modelMapper = modelMapper;
+        this.jwtFilter = jwtFilter;
     }
 
-    public List<DepartmentDTO> getAll() {
+    public List<SimpleDepartmentDTO> getAll() {
         Iterable<Department> departments = departmentRepository.findAll();
-        List<DepartmentDTO> departmentDTOS = new ArrayList<>();
+        List<SimpleDepartmentDTO> departmentDTOS = new ArrayList<>();
 
         for (Department d : departments) {
-            DepartmentDTO dto = modelMapper.map(d, DepartmentDTO.class);
-            Set<MunicipalitySimpleDTO> municipalitySimpleDTOS = new HashSet<>();
+            SimpleDepartmentDTO departmentDTO = modelMapper.map(d, SimpleDepartmentDTO.class);
+            Set<SimpleMunicipalityDTO> municipalitySimpleDTOS = new HashSet<>();
             for (Municipality m : d.getMunicipalities()) {
-                MunicipalitySimpleDTO municipalityDTO = modelMapper.map(m, MunicipalitySimpleDTO.class);
+                SimpleMunicipalityDTO municipalityDTO = modelMapper.map(m, SimpleMunicipalityDTO.class);
                 municipalitySimpleDTOS.add(municipalityDTO);
             }
-            dto.setMunicipalities(municipalitySimpleDTOS);
-            departmentDTOS.add(dto);
+            departmentDTO.setMunicipalities(municipalitySimpleDTOS);
+            departmentDTOS.add(departmentDTO);
         }
 
         return departmentDTOS;
     }
 
-    public DepartmentDTO getById(UUID id) {
+    public SimpleDepartmentDTO getById(@NonNull UUID id) {
         Optional<Department> department = departmentRepository.findById(id);
         if (department.isPresent()) {
-            DepartmentDTO dto = modelMapper.map(department.get(), DepartmentDTO.class);
-            Set<MunicipalitySimpleDTO> municipalitySimpleDTOS = new HashSet<>();
+            SimpleDepartmentDTO dto = modelMapper.map(department.get(), SimpleDepartmentDTO.class);
+            Set<SimpleMunicipalityDTO> municipalitySimpleDTOS = new HashSet<>();
             for (Municipality m : department.get().getMunicipalities()) {
-                MunicipalitySimpleDTO municipalityDTO = modelMapper.map(m, MunicipalitySimpleDTO.class);
+                SimpleMunicipalityDTO municipalityDTO = modelMapper.map(m, SimpleMunicipalityDTO.class);
                 municipalitySimpleDTOS.add(municipalityDTO);
             }
             dto.setMunicipalities(municipalitySimpleDTOS);
             return dto;
         }
-        return null;
+        throw new EntityNotFoundException("Department not found");
     }
 
-    public DepartmentDTO findByName(@NonNull String name) {
+    public SimpleDepartmentDTO findByName(@NonNull String name) {
         Optional<Department> department = departmentRepository.findByName(name);
         if (department.isPresent())
-            return modelMapper.map(department, DepartmentDTO.class);
+            return modelMapper.map(department, SimpleDepartmentDTO.class);
 
-        throw new ResponseStatusException(HttpStatus.NOT_FOUND, "Department not found");
+        throw new EntityNotFoundException("Department not found");
     }
 
-    public DepartmentDTO create(@NonNull DepartmentDTO department) {
+    public SimpleDepartmentDTO create(@NonNull @Valid SimpleDepartmentDTO department) {
+        if (!jwtFilter.isAdmin())
+            throw new UnauthorizedException("Not authorized");
+
         Department newDepartment = departmentRepository.save(
                 modelMapper.map(department, Department.class)
         );
@@ -72,7 +79,10 @@ public class DepartmentService {
         return getById(newDepartment.getId());
     }
 
-    public DepartmentDTO update(@NonNull UUID id, @NonNull DepartmentDTO departmentDTO) {
+    public SimpleDepartmentDTO update(@NonNull UUID id, @NonNull SimpleDepartmentDTO departmentDTO) {
+        if (!jwtFilter.isAdmin())
+            throw new UnauthorizedException("Not authorized");
+
         Optional<Department> department = departmentRepository.findById(id);
         if (department.isPresent()) {
             department.get().setName(departmentDTO.getName());
@@ -82,6 +92,8 @@ public class DepartmentService {
     }
 
     public void delete(@NonNull UUID id) {
+        if (!jwtFilter.isAdmin())
+            throw new UnauthorizedException("Not authorized");
         departmentRepository.deleteById(id);
     }
 }

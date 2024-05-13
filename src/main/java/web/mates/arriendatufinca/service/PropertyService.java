@@ -1,137 +1,154 @@
 package web.mates.arriendatufinca.service;
 
+import jakarta.validation.Valid;
+import lombok.NonNull;
+import org.modelmapper.ModelMapper;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.stereotype.Service;
+import web.mates.arriendatufinca.exceptions.EntityNotFoundException;
+import web.mates.arriendatufinca.exceptions.UnauthorizedException;
+import web.mates.arriendatufinca.model.department.Department;
+import web.mates.arriendatufinca.model.municipality.Municipality;
+import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.property.dto.NewPropertyDTO;
+import web.mates.arriendatufinca.model.property.dto.SimplePropertyDTO;
+import web.mates.arriendatufinca.model.user.User;
+import web.mates.arriendatufinca.repository.PropertyRepository;
+import web.mates.arriendatufinca.security.jwt.JWTFilter;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import jakarta.persistence.EntityNotFoundException;
-import org.modelmapper.ModelMapper;
-import org.springframework.stereotype.Service;
-import lombok.NonNull;
-import web.mates.arriendatufinca.dto.DepartmentDTO;
-import web.mates.arriendatufinca.dto.PropertyDTO;
-import web.mates.arriendatufinca.dto.PropertyInfoDTO;
-import web.mates.arriendatufinca.model.Department;
-import web.mates.arriendatufinca.model.Municipality;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
-import web.mates.arriendatufinca.repository.PropertyRepository;
-
 @Service
 public class PropertyService {
-
     private final PropertyRepository propertyRepository;
-    private final UserService userService;
     private final ModelMapper modelMapper;
+    private final JWTFilter jwtFilter;
+    private final UserService userService;
     private final MunicipalityService municipalityService;
     private final DepartmentService departmentService;
 
-    PropertyService(PropertyRepository propertyRepository, UserService userService, ModelMapper modelMapper,
-            MunicipalityService municipalityService, DepartmentService departmentService) {
+    private void checkAuth(String emailToCheck) {
+        Authentication auth = SecurityContextHolder.getContext().getAuthentication();
+        if (!auth.getName().equalsIgnoreCase(emailToCheck))
+            throw new UnauthorizedException("Not authorized");
+    }
+
+    PropertyService(PropertyRepository propertyRepository, ModelMapper modelMapper, JWTFilter jwtFilter, UserService userService, MunicipalityService municipalityService, DepartmentService departmentService) {
         this.propertyRepository = propertyRepository;
-        this.userService = userService;
         this.modelMapper = modelMapper;
+        this.jwtFilter = jwtFilter;
+        this.userService = userService;
         this.municipalityService = municipalityService;
         this.departmentService = departmentService;
     }
 
-    public List<PropertyInfoDTO> getAllProperties() {
+    public List<SimplePropertyDTO> getAll() {
         Iterable<Property> properties = propertyRepository.findAll();
-        List<PropertyInfoDTO> propertiesDTO = new ArrayList<>();
+        List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
 
-        for (Property property : properties) {
-            propertiesDTO.add(getPropertyById(property.getId()));
+        for (Property p : properties) {
+            SimplePropertyDTO propertyDTO = modelMapper.map(p, SimplePropertyDTO.class);
+            propertyDTO.setMunicipalityName(p.getMunicipality().getName());
+            propertyDTO.setDepartmentName(p.getMunicipality().getDepartment().getName());
+            propertyDTOS.add(propertyDTO);
         }
-        return propertiesDTO;
+
+        return propertyDTOS;
     }
 
-    public PropertyInfoDTO getPropertyById(@NonNull UUID id) {
-        Optional<Property> property = propertyRepository.findById(id);
-        if (property.isPresent()) {
-            PropertyInfoDTO propertyDTO = modelMapper.map(property, PropertyInfoDTO.class);
-            propertyDTO.setOwnerID(property.get().getOwner().getId());
-            propertyDTO.setMunicipalityName(property.get().getMunicipality().getName());
-            propertyDTO.setDepartmentName(property.get().getMunicipality().getDepartment().getName());
-            return propertyDTO;
-        }
-        return null;
+    public SimplePropertyDTO getById(@NonNull UUID id) {
+        Optional<Property> foundProperty = propertyRepository.findById(id);
+
+        if (foundProperty.isEmpty())
+            throw new EntityNotFoundException("Property not found");
+
+        Property property = foundProperty.get();
+
+        SimplePropertyDTO propertyDTO = modelMapper.map(property, SimplePropertyDTO.class);
+        propertyDTO.setMunicipalityName(property.getMunicipality().getName());
+        propertyDTO.setDepartmentName(property.getMunicipality().getDepartment().getName());
+
+        return propertyDTO;
     }
 
-    public PropertyInfoDTO newProperty(@NonNull PropertyDTO property) {
+    public SimplePropertyDTO create(@NonNull @Valid NewPropertyDTO property) {
         Property newProperty = modelMapper.map(property, Property.class);
+        User owner = modelMapper.map(
+                userService.getById(jwtFilter.getAuthId()),
+                User.class
+        );
 
-        newProperty.setOwner(
-                modelMapper.map(
-                        userService.getUserById(property.getOwnerID()),
-                        User.class));
+        Municipality municipality = modelMapper.map(
+                municipalityService.getById(property.getMunicipalityId()),
+                Municipality.class
+        );
 
-        newProperty.setMunicipality(
-                modelMapper.map(
-                        municipalityService.getById(property.getMunicipalityID()),
-                        Municipality.class));
-
+        newProperty.setOwner(owner);
+        newProperty.setMunicipality(municipality);
         newProperty.getMunicipality().setDepartment(
                 modelMapper.map(
                         departmentService.findByName(
-                                municipalityService.getById(property.getMunicipalityID()).getDepartmentName()),
+                                municipalityService.getById(property.getMunicipalityId()).getDepartmentName()),
                         Department.class));
 
-        Property savedProperty = propertyRepository.save(newProperty);
-        return getPropertyById(savedProperty.getId());
+        Property saved = propertyRepository.save(newProperty);
+        return getById(saved.getId());
     }
 
-    public PropertyInfoDTO updateProperty(@NonNull UUID id, @NonNull PropertyDTO newProperty) {
-        Optional<Property> property = propertyRepository.findById(id);
-        if (property.isPresent()) {
-            property.get().setName(newProperty.getName());
-            property.get().setDescription(newProperty.getDescription());
-            property.get().setBathrooms(newProperty.getBathrooms());
-            property.get().setRooms(newProperty.getRooms());
-            property.get().setPricePerNight(newProperty.getPricePerNight());
-            property.get().setBbq(newProperty.isBbq());
-            property.get().setPetFriendly(newProperty.isPetFriendly());
-            property.get().setPool(newProperty.isPool());
+    public SimplePropertyDTO update(@NonNull UUID id, @NonNull @Valid NewPropertyDTO property) {
+        Optional<Property> foundProperty = propertyRepository.findById(id);
 
-            property.get().setMunicipality(
-                    modelMapper.map(municipalityService.getById(newProperty.getMunicipalityID()), Municipality.class));
-            property.get().getMunicipality().setDepartment(
+        if (foundProperty.isEmpty())
+            throw new EntityNotFoundException("Property not found");
+
+        checkAuth(foundProperty.get().getOwner().getEmail());
+
+        Property propertyToUpdate = foundProperty.get();
+        propertyToUpdate.setName(property.getName());
+        propertyToUpdate.setDescription(property.getDescription());
+        propertyToUpdate.setRooms(property.getRooms());
+        propertyToUpdate.setBathrooms(property.getBathrooms());
+        propertyToUpdate.setPetFriendly(property.isPetFriendly());
+        propertyToUpdate.setPool(property.isPool());
+        propertyToUpdate.setBbq(property.isBbq());
+        propertyToUpdate.setPricePerNight(property.getPricePerNight());
+
+        if (!property.getMunicipalityId().equals(propertyToUpdate.getMunicipality().getId())) {
+            Municipality municipality = modelMapper.map(
+                    municipalityService.getById(property.getMunicipalityId()),
+                    Municipality.class
+            );
+
+            propertyToUpdate.setMunicipality(municipality);
+
+            propertyToUpdate.getMunicipality().setDepartment(
                     modelMapper.map(
                             departmentService.findByName(
-                                    municipalityService.getById(newProperty.getMunicipalityID()).getDepartmentName()),
+                                    municipalityService.getById(property.getMunicipalityId()).getDepartmentName()),
                             Department.class));
-
-            propertyRepository.save(property.get());
-            return getPropertyById(property.get().getId());
-        } else
-            return null;
-    }
-
-    public void deleteProperty(@NonNull UUID id) {
-        Optional<Property> property = propertyRepository.findById(id);
-        if (property.isPresent()) {
-            userService.removeProperty(property.get().getOwner().getId(), property.get());
-            municipalityService.removeProperty(property.get().getMunicipality().getId(), property.get());
-            propertyRepository.deleteById(id);
         }
+
+        propertyRepository.save(propertyToUpdate);
+        return getById(propertyToUpdate.getId());
     }
 
-    public List<PropertyInfoDTO> getPropertiesFromOwner(@NonNull UUID id) {
-        Iterable<Property> properties = propertyRepository.findByOwner(
-                modelMapper.map(userService.getUserById(id), User.class));
-        List<PropertyInfoDTO> propertiesDTO = new ArrayList<>();
+    public void delete(@NonNull UUID id) {
+        Optional<Property> propertyToDelete = propertyRepository.findById(id);
 
-        if (properties == null)
-            return null;
+        if (propertyToDelete.isEmpty())
+            return;
 
-        for (Property p : properties)
-            propertiesDTO.add(getPropertyById(p.getId()));
-        return propertiesDTO;
+        checkAuth(propertyToDelete.get().getOwner().getEmail());
+        propertyRepository.deleteById(id);
     }
 
-    public List<PropertyInfoDTO> findProperties(UUID municipality, String name) {
+    public List<SimplePropertyDTO> finder(UUID municipality, String name) {
         if (municipality == null && name == null)
-            return getAllProperties();
+            return getAll();
 
         Municipality municipalityObject = null;
         if (municipality != null)
@@ -144,9 +161,23 @@ public class PropertyService {
         if (properties == null)
             throw new EntityNotFoundException("No property found");
 
-        List<PropertyInfoDTO> propertyDTOS = new ArrayList<>();
+        List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
         for (Property p : properties)
-            propertyDTOS.add(getPropertyById(p.getId()));
+            propertyDTOS.add(getById(p.getId()));
+        return propertyDTOS;
+    }
+
+    public List<SimplePropertyDTO> getFromOwner() {
+        UUID authId = jwtFilter.getAuthId();
+        User owner = modelMapper.map(userService.getById(authId), User.class);
+        Iterable<Property> properties = propertyRepository.findByOwner(owner);
+        List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
+        for (Property p : properties)
+            propertyDTOS.add(getById(p.getId()));
+
+        if (propertyDTOS.isEmpty())
+            throw new EntityNotFoundException("No properties found");
+
         return propertyDTOS;
     }
 }

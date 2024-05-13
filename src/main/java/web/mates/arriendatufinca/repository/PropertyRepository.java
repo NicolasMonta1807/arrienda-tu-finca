@@ -1,15 +1,13 @@
 package web.mates.arriendatufinca.repository;
 
+import org.springframework.data.repository.CrudRepository;
+import web.mates.arriendatufinca.model.municipality.Municipality;
+import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.user.User;
+
 import java.util.UUID;
 
-import org.springframework.data.repository.CrudRepository;
-
-import web.mates.arriendatufinca.model.Municipality;
-import web.mates.arriendatufinca.model.Property;
-import web.mates.arriendatufinca.model.User;
-
 public interface PropertyRepository extends CrudRepository<Property, UUID> {
-    Iterable<Property> findByOwner(User owner);
-
     Iterable<Property> findByMunicipalityOrName(Municipality municipality, String name);
+    Iterable<Property> findByOwner(User owner);
 }
