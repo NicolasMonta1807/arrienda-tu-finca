@@ -9,7 +9,6 @@ import jakarta.persistence.EntityNotFoundException;
 import org.modelmapper.ModelMapper;
 import org.springframework.stereotype.Service;
 import lombok.NonNull;
-import web.mates.arriendatufinca.dto.DepartmentDTO;
 import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.PropertyInfoDTO;
 import web.mates.arriendatufinca.model.Department;

@@ -6,7 +6,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.web.server.ResponseStatusException;
 import web.mates.arriendatufinca.dto.BookingDTO;
-import web.mates.arriendatufinca.dto.PropertyDTO;
 import web.mates.arriendatufinca.dto.PropertyInfoDTO;
 import web.mates.arriendatufinca.exceptions.InvalidDateException;
 import web.mates.arriendatufinca.model.Booking;
