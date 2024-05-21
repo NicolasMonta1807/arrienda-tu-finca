@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/department")
 @Tag(name = "Departments", description = "Departments management")
 @ApiResponse(

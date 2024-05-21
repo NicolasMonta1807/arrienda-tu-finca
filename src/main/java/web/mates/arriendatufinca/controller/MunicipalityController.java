@@ -19,6 +19,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/municipality")
 @Tag(name = "Municipalities", description = "Municipalities management")
 @ApiResponse(

@@ -63,9 +63,9 @@ public class UserService {
 
     public SimpleUserDTO getById(@NonNull UUID id) {
         Optional<User> user = userRepository.findById(id);
-        if (user.isPresent())
-            return modelMapper.map(user, SimpleUserDTO.class);
-        return null;
+        if (user.isEmpty())
+            throw new EntityNotFoundException("User not found");
+        return modelMapper.map(user, SimpleUserDTO.class);
     }
 
     public SimpleUserDTO create(@NonNull SignUpDTO user) {

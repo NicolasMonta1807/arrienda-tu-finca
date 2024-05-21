@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/booking")
 @Tag(name = "Bookings", description = "Bookings' information")
 @ApiResponse(

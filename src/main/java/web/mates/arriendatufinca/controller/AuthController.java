@@ -11,10 +11,7 @@ import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import web.mates.arriendatufinca.model.property.dto.LoginDTO;
 import web.mates.arriendatufinca.model.user.dto.SignUpDTO;
 import web.mates.arriendatufinca.model.user.dto.SimpleUserDTO;
@@ -24,6 +21,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 @RestController
+@CrossOrigin
 @RequestMapping("/auth")
 @Tag(name = "Auth", description = "JWT and Security related operations")
 public class AuthController {
