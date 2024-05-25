@@ -3,6 +3,8 @@ package web.mates.arriendatufinca.service;
 import jakarta.validation.Valid;
 import lombok.NonNull;
 import org.modelmapper.ModelMapper;
+import org.modelmapper.internal.bytebuddy.utility.RandomString;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -11,6 +13,7 @@ import org.springframework.stereotype.Service;
 import web.mates.arriendatufinca.exceptions.DuplicateEmailException;
 import web.mates.arriendatufinca.exceptions.UnauthorizedException;
 import web.mates.arriendatufinca.exceptions.EntityNotFoundException;
+import web.mates.arriendatufinca.exceptions.UserActivationException;
 import web.mates.arriendatufinca.model.user.User;
 import web.mates.arriendatufinca.model.user.dto.SignUpDTO;
 import web.mates.arriendatufinca.model.user.dto.SimpleUserDTO;
@@ -32,14 +35,16 @@ public class UserService {
     private final CustomUserDetailsService customUserDetailsService;
     private final JWTUtil jwtUtil;
     private final JWTFilter jwtFilter;
+    private final MailService mailService;
 
-    UserService(UserRepository userRepository, ModelMapper modelMapper, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil, JWTFilter jwtFilter) {
+    UserService(UserRepository userRepository, ModelMapper modelMapper, AuthenticationManager authenticationManager, CustomUserDetailsService customUserDetailsService, JWTUtil jwtUtil, JWTFilter jwtFilter, JavaMailSender mailSender, MailService mailService) {
         this.userRepository = userRepository;
         this.modelMapper = modelMapper;
         this.authenticationManager = authenticationManager;
         this.customUserDetailsService = customUserDetailsService;
         this.jwtUtil = jwtUtil;
         this.jwtFilter = jwtFilter;
+        this.mailService = mailService;
     }
 
     private void checkAuth(String emailToCheck) {
@@ -75,11 +80,67 @@ public class UserService {
 
         User userToSave = modelMapper.map(user, User.class);
         userToSave.setRole("user");
+
+        String randomCode = RandomString.make(64);
+        userToSave.setVerificationCode(randomCode);
+
         User saved = userRepository.save(userToSave);
+        sendVerificationEmail(userToSave.getEmail());
         return modelMapper.map(saved, SimpleUserDTO.class);
     }
 
+    public void sendVerificationEmail(String email) {
+        Optional<User> foundUser = userRepository.findByEmail(email);
+
+        if (foundUser.isEmpty())
+            throw new EntityNotFoundException("User not found");
+
+        User user = foundUser.get();
+
+        if(user.isActivated())
+            throw new UserActivationException("User has already been activated");
+
+        String content = "Dear [[name]],<br>"
+                + "Please click the link below to verify your registration:<br>"
+                + "<h3><a href=\"[[URL]]\" target=\"_blank\">VERIFY</a></h3>"
+                + "Thank you,<br>"
+                + "Arrienda Tu Finca - By TwoMates.";
+
+        content = content.replace("[[name]]", user.getName() + " " + user.getLastName());
+        String verifyUrl = "http://two.mates.sbs" + "/verify?code=" + user.getVerificationCode();
+        content = content.replace("[[URL]]", verifyUrl);
+
+        String subject = "Verify your account";
+
+        mailService.sendEmail(user.getEmail(), subject, content, true);
+    }
+
+    public boolean verify(String verificationCode) {
+        Optional<User> foundUser = userRepository.findByVerificationCode(verificationCode);
+
+        if (foundUser.isEmpty())
+            throw new EntityNotFoundException("User not found");
+
+        if (foundUser.get().isActivated()) {
+            return false;
+        } else {
+            User user = foundUser.get();
+            user.setVerificationCode(null);
+            user.setActivated(true);
+            userRepository.save(user);
+            return true;
+        }
+    }
+
     public String login(String email, String password) {
+        Optional<User> foundUser = userRepository.findByEmail(email);
+
+        if (foundUser.isEmpty())
+            throw new EntityNotFoundException("User not found");
+
+        if (!foundUser.get().isActivated())
+            throw new UserActivationException("Use has not been verified");
+
         Authentication authentication = authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
         if (authentication.isAuthenticated())
             return jwtUtil.generateToken(
