@@ -59,16 +59,9 @@ public class SecurityConfig {
 
                     // Docs
                     request.requestMatchers(
-                            "/api-docs",
-                            "/api-docs/swagger-ui/index.html",
-                            "/v2/api-docs",
-                            "/configuration/ui",
-                            "/api-docs/swagger-ui/**",
-                            "/api-docs/swagger-config/**",
-                            "/swagger-resources/**",
-                            "/configuration/security",
-                            "/swagger-ui.html",
-                            "/webjars/**")
+                                    "/api-docs",
+                                    "/api-docs/swagger-ui/**",
+                                    "/api-docs/swagger-config/**")
                             .permitAll();
 
                     // Any other request
