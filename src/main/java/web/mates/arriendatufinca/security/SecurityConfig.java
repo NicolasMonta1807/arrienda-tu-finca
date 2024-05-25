@@ -55,6 +55,7 @@ public class SecurityConfig {
                     // Auth requests
                     request.requestMatchers("/auth/signup").permitAll();
                     request.requestMatchers("/auth/login").permitAll();
+                    request.requestMatchers("/auth/verify").permitAll();
 
                     // Docs
                     request.requestMatchers(

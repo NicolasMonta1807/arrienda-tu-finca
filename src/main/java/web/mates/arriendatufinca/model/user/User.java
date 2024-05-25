@@ -53,5 +53,10 @@ public class User {
     @NotBlank
     private String role;
 
+    @Column(name = "verification_code", length = 64)
+    private String verificationCode;
+
+    private boolean activated = Boolean.FALSE;
+
     private boolean deleted = Boolean.FALSE;
 }
