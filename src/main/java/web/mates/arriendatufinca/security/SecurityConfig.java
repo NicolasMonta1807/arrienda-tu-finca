@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.NoOpPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
 import web.mates.arriendatufinca.security.jwt.JWTFilter;
 
 @Configuration
@@ -33,12 +34,12 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity httpSecurity) throws Exception {
-        return httpSecurity.csrf(AbstractHttpConfigurer::disable)
-                .cors(Customizer.withDefaults())
+        return httpSecurity
+                .csrf(AbstractHttpConfigurer::disable)
+                .cors(request -> new CorsConfiguration()
+                        .applyPermitDefaultValues()
+                        .addAllowedMethod("OPTIONS"))
                 .authorizeHttpRequests(request -> {
-                    // Alow CORS
-                    request.requestMatchers(HttpMethod.OPTIONS,"/**").permitAll();
-
                     // Auth requests
                     request.requestMatchers("/auth/signup").permitAll();
                     request.requestMatchers("/auth/login").permitAll();
@@ -54,12 +55,12 @@ public class SecurityConfig {
                             "/swagger-resources/**",
                             "/configuration/security",
                             "/swagger-ui.html",
-                            "/webjars/**").permitAll();
+                            "/webjars/**")
+                            .permitAll();
 
                     // Any request
                     request.anyRequest().authenticated();
                 })
-                .csrf(AbstractHttpConfigurer::disable)
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exceptionHandling -> exceptionHandling.configure(httpSecurity))
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class)

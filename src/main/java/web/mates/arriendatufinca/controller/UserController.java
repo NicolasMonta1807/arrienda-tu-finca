@@ -18,7 +18,6 @@ import web.mates.arriendatufinca.service.UserService;
 import java.util.*;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/user")
 @Tag(name = "Users", description = "Users' information")
 @ApiResponse(

@@ -21,7 +21,6 @@ import java.util.List;
 import java.util.UUID;
 
 @RestController
-@CrossOrigin
 @RequestMapping("/property")
 @Tag(name = "Property", description = "Properties' information")
 @ApiResponse(

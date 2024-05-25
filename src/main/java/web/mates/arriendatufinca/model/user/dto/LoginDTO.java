@@ -1,4 +1,4 @@
-package web.mates.arriendatufinca.model.property.dto;
+package web.mates.arriendatufinca.model.user.dto;
 
 import lombok.*;
 
