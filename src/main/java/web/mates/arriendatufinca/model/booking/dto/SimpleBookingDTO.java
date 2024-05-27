@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import org.springframework.format.annotation.DateTimeFormat;
-import web.mates.arriendatufinca.model.booking.Status;
+import web.mates.arriendatufinca.model.status.Status;
 
 import java.util.Date;
 import java.util.UUID;

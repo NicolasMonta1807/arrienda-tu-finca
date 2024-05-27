@@ -8,6 +8,7 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.status.Status;
 import web.mates.arriendatufinca.model.user.User;
 
 import java.util.Date;

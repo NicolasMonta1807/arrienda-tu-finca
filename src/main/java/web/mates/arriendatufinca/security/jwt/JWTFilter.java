@@ -34,8 +34,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, @NonNull HttpServletResponse response, @NonNull FilterChain filterChain) throws ServletException, IOException {
-        if (request.getServletPath().matches("/auth/login|/auth/signup|/auth/verify|^/api-docs/swagger-(ui|config)(/[^/]+)?$\n"))
+        if (request.getServletPath().matches("/auth/login|/auth/signup|/auth/verify"))
             filterChain.doFilter(request, response);
+        else if (request.getServletPath().matches("/api-docs/swagger-ui/.*$")) {
+            filterChain.doFilter(request, response);
+        } else if (request.getServletPath().matches("/api-docs/swagger-config")) {
+            filterChain.doFilter(request, response);
+        }
         else {
             String authorizationHeader = request.getHeader("Authorization");
             String token = null;

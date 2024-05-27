@@ -14,6 +14,7 @@ import web.mates.arriendatufinca.model.booking.dto.MyBookingsDTO;
 import web.mates.arriendatufinca.model.booking.dto.NewBookingDTO;
 import web.mates.arriendatufinca.model.booking.dto.SimpleBookingDTO;
 import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.status.Status;
 import web.mates.arriendatufinca.model.user.User;
 import web.mates.arriendatufinca.repository.BookingRepository;
 import web.mates.arriendatufinca.security.jwt.JWTFilter;
@@ -160,5 +161,16 @@ public class BookingService {
             throw new UnauthorizedException();
 
         bookingRepository.deleteById(id);
+    }
+
+    public void updateStatus(UUID id, Status status) {
+        Optional<Booking> foundBooking = bookingRepository.findById(id);
+
+        if(foundBooking.isEmpty())
+            throw new EntityNotFoundException("Booking not found");
+
+        Booking booking = foundBooking.get();
+        booking.setStatus(status);
+        bookingRepository.save(booking);
     }
 }

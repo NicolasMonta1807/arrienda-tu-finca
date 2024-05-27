@@ -65,6 +65,13 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(400).body(error);
     }
 
+    @ExceptionHandler(InvalidBookingStatusException.class)
+    public ResponseEntity<Object> handleInvalidBookingStatusException(InvalidBookingStatusException ex) {
+        HashMap<String, String> error = new HashMap<>();
+        error.put(ERROR_KEY, ex.getMessage());
+        return ResponseEntity.status(400).body(error);
+    }
+
     @ExceptionHandler(EmailException.class)
     public ResponseEntity<Object> handleEmailException(EmailException ex) {
         HashMap<String, String> error = new HashMap<>();
