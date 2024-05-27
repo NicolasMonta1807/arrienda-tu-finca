@@ -34,13 +34,16 @@ public class Review {
     @Size(max = 1024, message = "Comment is too long")
     private String comment;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "booking", nullable = false)
     private Booking booking;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "author", nullable = false)
     private User author;
 
-    @OneToOne
+    @ManyToOne
+    @JoinColumn(name = "rated", nullable = false)
     private User rated;
 
     private boolean deleted = Boolean.FALSE;

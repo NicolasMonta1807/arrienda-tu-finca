@@ -8,10 +8,12 @@ import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import org.springframework.format.annotation.DateTimeFormat;
 import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.review.Review;
 import web.mates.arriendatufinca.model.status.Status;
 import web.mates.arriendatufinca.model.user.User;
 
 import java.util.Date;
+import java.util.List;
 import java.util.UUID;
 
 @Entity
@@ -50,6 +52,9 @@ public class Booking {
 
     @Enumerated(EnumType.STRING)
     private Status status = Status.ACTIVE;
+
+    @OneToMany(mappedBy = "booking")
+    private List<Review> reviews ;
 
     private boolean deleted = Boolean.FALSE;
 }

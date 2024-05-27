@@ -8,7 +8,9 @@ import lombok.*;
 import org.hibernate.annotations.SQLDelete;
 import org.hibernate.annotations.SQLRestriction;
 import web.mates.arriendatufinca.model.property.Property;
+import web.mates.arriendatufinca.model.review.Review;
 
+import java.util.List;
 import java.util.Set;
 import java.util.UUID;
 
@@ -55,6 +57,12 @@ public class User {
 
     @Column(name = "verification_code", length = 64)
     private String verificationCode;
+
+    @OneToMany(mappedBy = "author")
+    private Set<Review> reviewsAsAuthor;
+
+    @OneToMany(mappedBy = "rated")
+    private Set<Review> reviewsAsRated;
 
     private boolean activated = Boolean.FALSE;
 
