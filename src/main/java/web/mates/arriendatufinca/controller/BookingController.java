@@ -170,6 +170,25 @@ public class BookingController {
         return new ResponseEntity<>(bookingService.update(id, booking), HttpStatus.OK);
     }
 
+    @Operation(
+            summary = "Updated booking status",
+            description = "Updates the given ID booking status"
+    )
+    @ApiResponses({
+            @ApiResponse(
+                    responseCode = "200",
+                    description = "Booking status was successfully updated",
+                    content = @Content(
+                            mediaType = "application/json",
+                            schema = @Schema(implementation = SimpleBookingDTO.class)
+                    )
+            ),
+            @ApiResponse(
+                    responseCode = "404",
+                    description = "Booking not found",
+                    content = @Content
+            )
+    })
     @PutMapping("/status/{id}")
     public ResponseEntity<SimpleBookingDTO> updateStatus(
             @Parameter(

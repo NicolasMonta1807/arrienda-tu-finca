@@ -4,6 +4,7 @@ import io.jsonwebtoken.ExpiredJwtException;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
@@ -67,6 +68,13 @@ public class GlobalExceptionHandler {
 
     @ExceptionHandler(InvalidBookingStatusException.class)
     public ResponseEntity<Object> handleInvalidBookingStatusException(InvalidBookingStatusException ex) {
+        HashMap<String, String> error = new HashMap<>();
+        error.put(ERROR_KEY, ex.getMessage());
+        return ResponseEntity.status(400).body(error);
+    }
+
+    @ExceptionHandler(HttpMessageNotReadableException.class)
+    public ResponseEntity<Object> handleHttpMessageNotReadableException(HttpMessageNotReadableException ex) {
         HashMap<String, String> error = new HashMap<>();
         error.put(ERROR_KEY, ex.getMessage());
         return ResponseEntity.status(400).body(error);
