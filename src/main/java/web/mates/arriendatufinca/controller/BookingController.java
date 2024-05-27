@@ -16,6 +16,8 @@ import org.springframework.web.bind.annotation.*;
 import web.mates.arriendatufinca.model.booking.dto.MyBookingsDTO;
 import web.mates.arriendatufinca.model.booking.dto.NewBookingDTO;
 import web.mates.arriendatufinca.model.booking.dto.SimpleBookingDTO;
+import web.mates.arriendatufinca.model.status.Status;
+import web.mates.arriendatufinca.model.status.dto.StatusUpdateDTO;
 import web.mates.arriendatufinca.service.BookingService;
 
 import java.util.List;
@@ -151,7 +153,7 @@ public class BookingController {
     public ResponseEntity<SimpleBookingDTO> update(
             @Parameter(
                     name = "id",
-                    description = "ID of property to be updated",
+                    description = "ID of booking to be updated",
                     schema = @Schema(implementation = UUID.class),
                     required = true
             )
@@ -166,6 +168,28 @@ public class BookingController {
             @NonNull @Valid @RequestBody NewBookingDTO booking
     ) {
         return new ResponseEntity<>(bookingService.update(id, booking), HttpStatus.OK);
+    }
+
+    @PutMapping("/status/{id}")
+    public ResponseEntity<SimpleBookingDTO> updateStatus(
+            @Parameter(
+                    name = "id",
+                    description = "ID of booking to be updated",
+                    schema = @Schema(implementation = UUID.class),
+                    required = true
+            )
+            @NonNull @PathVariable UUID id,
+            @Parameter(
+                    name = "status",
+                    description = "Booking's new status",
+                    schema = @Schema(implementation = StatusUpdateDTO.class),
+                    required = true,
+                    in = ParameterIn.QUERY
+            )
+            @NonNull @RequestBody StatusUpdateDTO statusUpdate
+    ) {
+        bookingService.updateStatus(id, statusUpdate.getStatus());
+        return new ResponseEntity<>(bookingService.getById(id), HttpStatus.OK);
     }
 
     @Operation(
