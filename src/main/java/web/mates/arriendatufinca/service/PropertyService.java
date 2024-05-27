@@ -161,9 +161,11 @@ public class PropertyService {
         if (properties == null)
             throw new EntityNotFoundException("No property found");
 
+        UUID authId = jwtFilter.getAuthId();
         List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
         for (Property p : properties)
-            propertyDTOS.add(getById(p.getId()));
+            if(!p.getOwner().getId().equals(authId))
+                propertyDTOS.add(getById(p.getId()));
         return propertyDTOS;
     }
 
