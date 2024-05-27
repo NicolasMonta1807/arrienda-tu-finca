@@ -1,4 +1,4 @@
-package web.mates.arriendatufinca.model.booking;
+package web.mates.arriendatufinca.model.status;
 
 public enum Status {
     ACTIVE,
