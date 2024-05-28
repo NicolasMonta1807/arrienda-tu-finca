@@ -47,8 +47,16 @@ public class PropertyController {
             )
     })
     @GetMapping()
-    public ResponseEntity<List<SimplePropertyDTO>> getAll() {
-        return new ResponseEntity<>(propertyService.getAll(), HttpStatus.OK);
+    public ResponseEntity<List<SimplePropertyDTO>> getAll(
+            @Parameter(
+                    name = "exclude",
+                    description = "Whether properties should exclude owned ones or not",
+                    schema = @Schema(implementation = boolean.class),
+                    in = ParameterIn.PATH
+            )
+            @RequestParam(required = false, defaultValue = "false") boolean exclude
+    ) {
+        return new ResponseEntity<>(propertyService.getAll(exclude), HttpStatus.OK);
     }
 
     @Operation(

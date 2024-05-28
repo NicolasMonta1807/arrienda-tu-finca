@@ -46,7 +46,8 @@ public class PropertyService {
         this.departmentService = departmentService;
     }
 
-    public List<SimplePropertyDTO> getAll() {
+    public List<SimplePropertyDTO> getAll(boolean exclude) {
+        UUID authId = jwtFilter.getAuthId();
         Iterable<Property> properties = propertyRepository.findAll();
         List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
 
@@ -54,9 +55,9 @@ public class PropertyService {
             SimplePropertyDTO propertyDTO = modelMapper.map(p, SimplePropertyDTO.class);
             propertyDTO.setMunicipalityName(p.getMunicipality().getName());
             propertyDTO.setDepartmentName(p.getMunicipality().getDepartment().getName());
-            propertyDTOS.add(propertyDTO);
+            if (!exclude || !authId.equals(p.getOwner().getId()))
+                propertyDTOS.add(propertyDTO);
         }
-
         return propertyDTOS;
     }
 
@@ -164,7 +165,7 @@ public class PropertyService {
         UUID authId = jwtFilter.getAuthId();
         List<SimplePropertyDTO> propertyDTOS = new ArrayList<>();
         for (Property p : properties)
-            if(!p.getOwner().getId().equals(authId))
+            if (!p.getOwner().getId().equals(authId))
                 propertyDTOS.add(getById(p.getId()));
         return propertyDTOS;
     }
