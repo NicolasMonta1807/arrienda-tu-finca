@@ -149,7 +149,7 @@ public class PropertyService {
 
     public List<SimplePropertyDTO> finder(UUID municipality, String name) {
         if (municipality == null && name == null)
-            return getAll();
+            return getAll(true);
 
         Municipality municipalityObject = null;
         if (municipality != null)
