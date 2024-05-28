@@ -13,7 +13,7 @@ import java.io.UnsupportedEncodingException;
 public class MailService {
     private final JavaMailSender mailSender;
 
-    private final String fromAddress = "juan_munoz@mates.sbs";
+    private final String fromAddress = "hello@mates.sbs";
     private final String senderName = "LandMates";
 
     MailService(JavaMailSender mailSender) {

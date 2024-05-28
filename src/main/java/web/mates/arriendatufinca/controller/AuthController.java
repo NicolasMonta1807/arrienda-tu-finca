@@ -47,7 +47,7 @@ public class AuthController {
             )
     })
     @PostMapping("/signup")
-    public ResponseEntity<Void> signUp(
+    public ResponseEntity<SimpleUserDTO> signUp(
             @Parameter(
                     description = "User object to register",
                     required = true,
@@ -55,7 +55,7 @@ public class AuthController {
             )
             @NonNull @RequestBody @Valid SignUpDTO user
     ) {
-        return new ResponseEntity<>(HttpStatus.CREATED);
+        return new ResponseEntity<>(userService.create(user), HttpStatus.CREATED);
     }
 
     @Operation(
